@@ -1,0 +1,39 @@
+services:
+  mysql:
+    image: mysql:8
+    container_name: mysql-linsi
+    restart: always
+    environment:
+      MYSQL_DATABASE: gestion_usuarios
+      MYSQL_ROOT_PASSWORD: root1234
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: phpmyadmin-linsi
+    restart: always
+    environment:
+      PMA_HOST: mysql
+      MYSQL_ROOT_PASSWORD: root1234
+    ports:
+      - "8081:80"
+    depends_on:
+      - mysql
+
+  app:
+    build: .
+    container_name: springboot-linsi
+    ports:
+      - "8080:8080"
+    depends_on:
+      - mysql
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/gestion_usuarios
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: root1234
+
+volumes:
+  mysql_data:

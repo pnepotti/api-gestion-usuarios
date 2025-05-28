@@ -1,0 +1,18 @@
+# Maven
+target/
+*.log
+
+# Sistema
+.DS_Store
+.idea/
+.vscode/
+
+# Docker
+.env
+*.env
+
+# Java
+*.class
+
+# SSL
+nginx/certs/
