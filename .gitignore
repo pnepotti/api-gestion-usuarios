@@ -16,3 +16,6 @@ target/
 
 # SSL
 nginx/certs/
+
+#DOCKER dev
+docker-compose-dev.yml
