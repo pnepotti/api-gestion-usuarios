@@ -46,6 +46,7 @@ public class UsuarioController {
         return usuarioRepo.findById(id)
                 .map(u -> {
                     u.setNombre(actualizacion.getNombre());
+                    u.setApellido(actualizacion.getApellido());
                     u.setEmail(actualizacion.getEmail());
                     u.setRol(actualizacion.getRol());
                     usuarioRepo.save(u);
@@ -60,6 +61,8 @@ public class UsuarioController {
         return usuarioRepo.findById(id)
                 .map(u -> {
                     u.setNombre(actualizacion.getNombre());
+                    u.setApellido(actualizacion.getApellido());
+                    u.setEmail(actualizacion.getEmail());
                     usuarioRepo.save(u);
                     return ResponseEntity.ok(u);
                 })
