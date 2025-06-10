@@ -65,5 +65,5 @@ docker volume inspect gestionusuarios_mysql_data
 
 ## 📱 Contacto
 
-Proyecto desarrollado por **\[Paulo Nepotti]** como parte de la **Práctica Profesional Supervisada** en el laboratorio **LINSI** — Universidad Tecnológica Nacional, Facultad Regional La Plata.
+Proyecto desarrollado por **Paulo Nepotti** como parte de la **Práctica Profesional Supervisada** en el laboratorio **LINSI** — Universidad Tecnológica Nacional, Facultad Regional La Plata.
 
