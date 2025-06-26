@@ -56,7 +56,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                     var auth = new UsernamePasswordAuthenticationToken(
                             usuario,
                             null,
-                            List.of(() -> "ROLE_" + usuario.getRol().name()) // Spring exige "ROLE_" como prefijo
+                            List.of(() -> usuario.getRol() != null ? "ROLE_" + usuario.getRol().getNombre() : "ROLE_NONE")
                     );
 
                     auth.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));

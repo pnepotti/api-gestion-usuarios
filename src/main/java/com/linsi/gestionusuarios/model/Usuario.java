@@ -1,6 +1,7 @@
 package com.linsi.gestionusuarios.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
 
 import jakarta.persistence.*;
 import lombok.*;
@@ -9,6 +10,7 @@ import lombok.*;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class Usuario {
 
     @Id
@@ -26,6 +28,7 @@ public class Usuario {
     @JsonIgnore
     private String password;
 
-    @Enumerated(EnumType.STRING)
-    private Rol rol; // "USER" o "ADMIN"
+    @ManyToOne
+    @JoinColumn(name = "rol_id")
+    private Rol rol; // Puede ser null al crear el usuario
 }

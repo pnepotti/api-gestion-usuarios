@@ -34,7 +34,7 @@ public class AuthService {
         nuevo.setApellido(dto.getApellido());
         nuevo.setEmail(dto.getEmail());
         nuevo.setPassword(passwordEncoder.encode(dto.getPassword())); // cifrado de contraseña
-        nuevo.setRol(Rol.USER); // asignar rol por defecto
+        // nuevo.setRol(Rol.USER);  asignar rol por defecto
 
         usuarioRepo.save(nuevo);
 

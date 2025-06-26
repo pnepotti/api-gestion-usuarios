@@ -1,0 +1,15 @@
+FROM nginx:alpine
+
+# Instala bash
+RUN apk add --no-cache bash
+
+# Copia el script wait-for-it.sh
+COPY wait-for-it.sh /wait-for-it.sh
+RUN chmod +x /wait-for-it.sh
+
+# Copia la configuración y los certificados
+COPY ./nginx/nginx.conf /etc/nginx/nginx.conf
+COPY ./nginx/certs /etc/nginx/certs
+
+# Espera a que la app esté lista antes de iniciar nginx
+ENTRYPOINT ["/wait-for-it.sh", "app:8080", "--", "nginx", "-g", "daemon off;"]
