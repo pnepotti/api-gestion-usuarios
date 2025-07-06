@@ -2,12 +2,14 @@ package com.linsi.gestionusuarios.service;
 
 import com.linsi.gestionusuarios.dto.JwtResponse;
 import com.linsi.gestionusuarios.dto.UsuarioRegistroDTO;
+import com.linsi.gestionusuarios.exception.EmailAlreadyExistsException;
 import com.linsi.gestionusuarios.dto.LoginDTO;
-import com.linsi.gestionusuarios.model.Rol;
+import org.springframework.security.core.Authentication;
 import com.linsi.gestionusuarios.model.Usuario;
 import com.linsi.gestionusuarios.repository.UsuarioRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import com.linsi.gestionusuarios.security.JwtUtil;
@@ -24,40 +26,33 @@ public class AuthService {
     @Autowired
     private JwtUtil jwtUtil;
 
-    public ResponseEntity<String> register(UsuarioRegistroDTO dto) {
+    @Autowired
+    private AuthenticationManager authenticationManager;
+
+    public void register(UsuarioRegistroDTO dto) {
         if (usuarioRepo.findByEmail(dto.getEmail()).isPresent()) {
-            return ResponseEntity.badRequest().body("Ya existe un usuario con ese email");
+            throw new EmailAlreadyExistsException("Ya existe un usuario con ese email");
         }
 
         Usuario nuevo = new Usuario();
         nuevo.setNombre(dto.getNombre());
         nuevo.setApellido(dto.getApellido());
         nuevo.setEmail(dto.getEmail());
-        nuevo.setPassword(passwordEncoder.encode(dto.getPassword())); // cifrado de contraseña
-        // nuevo.setRol(Rol.USER);  asignar rol por defecto
-
+        nuevo.setPassword(passwordEncoder.encode(dto.getPassword()));
+        
         usuarioRepo.save(nuevo);
-
-        return ResponseEntity.ok("Usuario registrado con éxito");
     }
 
-    public ResponseEntity<JwtResponse> login(LoginDTO dto) {
+    public JwtResponse login(LoginDTO dto) {
+        
+        Authentication authentication = authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(dto.getEmail(), dto.getPassword())
+        );
 
-        System.out.println("➡️ Procesando login para: " + dto.getEmail());
-        var usuarioOpt = usuarioRepo.findByEmail(dto.getEmail());
-
-        if (usuarioOpt.isEmpty()) {
-            return ResponseEntity.status(401).build();
-        }
-
-        var usuario = usuarioOpt.get();
-
-        if (!passwordEncoder.matches(dto.getPassword(), usuario.getPassword())) {
-            return ResponseEntity.status(401).build();
-        }
+        Usuario usuario = (Usuario) authentication.getPrincipal();
 
         String token = jwtUtil.generateToken(usuario);
-        return ResponseEntity.ok(new JwtResponse(token));
+        return new JwtResponse(token);
     }
 
 }

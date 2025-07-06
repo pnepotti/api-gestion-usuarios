@@ -1,6 +1,7 @@
 package com.linsi.gestionusuarios.dto;
 
-import jakarta.validation.constraints.NotNull;
+import java.time.LocalDate;
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -8,7 +9,9 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class AsignarRolDTO {
-    @NotNull(message = "El ID del rol no puede ser nulo")
-    private Long rolId;
+public class ActividadResponseDTO {
+    private Long id;
+    private String descripcion;
+    private LocalDate fecha;
+    private Integer horas;
 }

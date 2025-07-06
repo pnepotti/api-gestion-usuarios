@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class AsignarRolDTO {
-    @NotNull(message = "El ID del rol no puede ser nulo")
-    private Long rolId;
+public class AsignarUsuarioBecaDTO  {
+    @NotNull(message = "El ID del usuario es obligatorio.")
+    private Long usuarioId;
 }
