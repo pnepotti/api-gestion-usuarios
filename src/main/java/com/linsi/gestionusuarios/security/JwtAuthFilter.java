@@ -26,17 +26,8 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
-            throws ServletException, IOException {
+            throws ServletException, IOException {    
 
-        
-        // Protección extra: ignorar rutas públicas explícitamente
-        String path = request.getServletPath();
-        System.out.println("🔒 JwtAuthFilter ejecutado para path: " + path);
-        if (path.startsWith("/auth") || path.startsWith("/swagger-ui")) {
-            chain.doFilter(request, response);
-            return;
-        }
-        
         String authHeader = request.getHeader("Authorization");
 
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
@@ -64,19 +55,9 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                 }
             }
 
-        } catch (JwtException e) {
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            return;
+        } catch (JwtException e) {       
+                 
         }
-
         chain.doFilter(request, response);
-    }
-
-    @Override
-    protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
-        String path = request.getServletPath();
-        System.out.println("➡️ shouldNotFilter ejecutado para path: " + path);
-        // No filtrar para endpoints públicos
-        return path.startsWith("/auth") || path.startsWith("/swagger-ui");
     }
 }

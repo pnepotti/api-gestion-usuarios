@@ -2,8 +2,6 @@ package com.linsi.gestionusuarios.service;
 
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
-import com.linsi.gestionusuarios.dto.RecuperarPasswordDTO;
-import com.linsi.gestionusuarios.dto.RestablecerPasswordDTO;
 import com.linsi.gestionusuarios.exception.InvalidTokenException;
 import com.linsi.gestionusuarios.model.PasswordResetToken;
 import com.linsi.gestionusuarios.model.Usuario;
@@ -11,6 +9,7 @@ import com.linsi.gestionusuarios.repository.PasswordResetTokenRepository;
 import com.linsi.gestionusuarios.repository.UsuarioRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 

@@ -7,27 +7,22 @@ import com.linsi.gestionusuarios.dto.LoginDTO;
 import org.springframework.security.core.Authentication;
 import com.linsi.gestionusuarios.model.Usuario;
 import com.linsi.gestionusuarios.repository.UsuarioRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import com.linsi.gestionusuarios.security.JwtUtil;
 
+import lombok.RequiredArgsConstructor;
+
 @Service
+@RequiredArgsConstructor
 public class AuthService {
 
-    @Autowired
-    private UsuarioRepository usuarioRepo;
-
-    @Autowired
-    private PasswordEncoder passwordEncoder;
-
-    @Autowired
-    private JwtUtil jwtUtil;
-
-    @Autowired
-    private AuthenticationManager authenticationManager;
+    private final UsuarioRepository usuarioRepo;
+    private final PasswordEncoder passwordEncoder;
+    private final JwtUtil jwtUtil;
+    private final AuthenticationManager authenticationManager;
 
     public void register(UsuarioRegistroDTO dto) {
         if (usuarioRepo.findByEmail(dto.getEmail()).isPresent()) {

@@ -2,7 +2,6 @@ package com.linsi.gestionusuarios.service;
 
 import java.util.Optional;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
@@ -10,13 +9,13 @@ import com.linsi.gestionusuarios.model.Actividad;
 import com.linsi.gestionusuarios.model.Usuario;
 import com.linsi.gestionusuarios.repository.ActividadRepository;
 
-@Service("actividadSecurity")
-public class ActividadSecurityService {
-    @Autowired
-    private ActividadRepository actividadRepository;
+import lombok.RequiredArgsConstructor;
 
-    @Autowired
-    private ProyectoService proyectoService;
+@Service("actividadSecurity")
+@RequiredArgsConstructor
+public class ActividadSecurityService {
+    private final ActividadRepository actividadRepository;
+    private final ProyectoSecurityService proyectoSecurityService;
 
     public boolean puedeModificar(Long actividadId, Authentication authentication) {
         Optional<Actividad> actividadOpt = actividadRepository.findById(actividadId);
@@ -34,8 +33,7 @@ public class ActividadSecurityService {
         if (actividad.getProyecto() == null) {
             return authentication.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_DOCENTE"));
         } else {
-            return proyectoService.esDirector(actividad.getProyecto().getId(), usuarioId);
+            return proyectoSecurityService.esDirector(actividad.getProyecto().getId(), usuarioId);
         }
     }
 }        
-

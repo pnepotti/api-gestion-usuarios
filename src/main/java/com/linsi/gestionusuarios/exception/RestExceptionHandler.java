@@ -25,6 +25,12 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
         return new ResponseEntity<>(errorResponse, HttpStatus.CONFLICT);
     }
 
+    @ExceptionHandler(ConflictException.class)
+    protected ResponseEntity<MensajeResponseDTO> handleGenericConflict(ConflictException ex) {
+        MensajeResponseDTO errorResponse = new MensajeResponseDTO(ex.getMessage());
+        return new ResponseEntity<>(errorResponse, HttpStatus.CONFLICT);
+    }
+
     @ExceptionHandler(BadCredentialsException.class)
     protected ResponseEntity<MensajeResponseDTO> handleBadCredentials(BadCredentialsException ex) {
         MensajeResponseDTO errorResponse = new MensajeResponseDTO("Credenciales inválidas.");
@@ -37,16 +43,25 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
         return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
     }
 
+    @ExceptionHandler(ResourceNotFoundException.class)
+    protected ResponseEntity<MensajeResponseDTO> handleResourceNotFound(ResourceNotFoundException ex) {
+        MensajeResponseDTO errorResponse = new MensajeResponseDTO(ex.getMessage());
+        return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
+    }
+
     @Override
     protected ResponseEntity<Object> handleMethodArgumentNotValid(
             MethodArgumentNotValidException ex, HttpHeaders headers, HttpStatusCode status, WebRequest request) {
         
-        Map<String, String> errors = new HashMap<>();
+        Map<String, String> fieldErrors = new HashMap<>();
         ex.getBindingResult().getAllErrors().forEach((error) -> {
             String fieldName = ((FieldError) error).getField();
             String errorMessage = error.getDefaultMessage();
-            errors.put(fieldName, errorMessage);
+            fieldErrors.put(fieldName, errorMessage);
         });
-        return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
+        Map<String, Object> body = new HashMap<>();
+        body.put("mensaje", "Error de validación");
+        body.put("errores", fieldErrors);
+        return new ResponseEntity<>(body, HttpStatus.BAD_REQUEST);
     }
 }

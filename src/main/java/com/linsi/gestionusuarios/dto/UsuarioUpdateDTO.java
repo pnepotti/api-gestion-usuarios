@@ -15,6 +15,11 @@ public class UsuarioUpdateDTO {
 
     @NotBlank(message = "El apellido es obligatorio.")
     private String apellido;
+
+    @NotBlank(message = "El DNI no puede estar vacío")
+    private String dni;
+
+    private String legajo;
     
     @Email(message = "El email debe ser válido.")
     @NotBlank(message = "El email es obligatorio.")

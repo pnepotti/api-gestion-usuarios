@@ -8,18 +8,19 @@ import com.linsi.gestionusuarios.service.AuthService;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/auth")
+@RequiredArgsConstructor
 @Tag(name = "Autenticación y Registro", description = "API para el registro de nuevos usuarios y la obtención de tokens de autenticación (login).")
 public class AuthController {
 
-    @Autowired
-    private AuthService authService;
+    private final AuthService authService;
 
     @PostMapping("/register")
     public ResponseEntity<MensajeResponseDTO> registrar(@Valid @RequestBody UsuarioRegistroDTO dto) {
