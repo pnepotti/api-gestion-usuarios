@@ -121,6 +121,8 @@ Si prefieres ejecutar la aplicación desde tu IDE (IntelliJ, VS Code, etc.):
 
 ## 📍 Endpoints Principales
 
+A continuación se detallan los principales grupos de endpoints de la API.
+
 ### 🔐 Autenticación
 
 | Método | Endpoint         | Descripción                       | Acceso  |
@@ -130,23 +132,58 @@ Si prefieres ejecutar la aplicación desde tu IDE (IntelliJ, VS Code, etc.):
 
 ### 👥 Gestión de Usuarios
 
-| Método   | Endpoint             | Descripción                               | Acceso                 |
-| :------- | :------------------- | :---------------------------------------- | :--------------------- |
-| `GET`    | `/api/usuarios`      | Lista todos los usuarios.                 | `ADMIN`                |
-| `GET`    | `/api/usuarios/me`   | Obtiene los datos del perfil propio.      | `USER`, `ADMIN`        |
-| `PUT`    | `/api/usuarios/{id}` | Modifica un usuario.                      | `ADMIN` o mismo usuario |
-| `DELETE` | `/api/usuarios/{id}` | Elimina un usuario.                       | `ADMIN`                |
+| Método   | Endpoint             | Descripción                               | Acceso                                |
+| :------- | :------------------- | :---------------------------------------- | :------------------------------------ |
+| `GET`    | `/api/usuarios`      | Lista todos los usuarios.                 | `ADMINISTRADOR`                       |
+| `GET`    | `/api/usuarios/me`   | Obtiene los datos del perfil propio.      | `ADMINISTRADOR`, `DOCENTE`, `BECARIO` |
+| `PUT`    | `/api/usuarios/{id}` | Modifica un usuario.                      | `ADMINISTRADOR` o el propio usuario   |
+| `DELETE` | `/api/usuarios/{id}` | Elimina un usuario.                       | `ADMINISTRADOR`                       |
 
-### 📦 Gestión de [Otra Entidad]
+### 🏗️ Gestión de Proyectos
 
-_Plantilla para documentar los endpoints de otras entidades. Reemplaza `[Otra Entidad]` y `/api/otra-entidad`._
+| Método   | Endpoint               | Descripción                         | Acceso                                |
+| :------- | :--------------------- | :---------------------------------- | :------------------------------------ |
+| `POST`   | `/api/proyectos`       | Crea un nuevo proyecto.             | `ADMINISTRADOR`                       |
+| `GET`    | `/api/proyectos`       | Lista todos los proyectos.          | `ADMINISTRADOR`, `DOCENTE`, `BECARIO` |
+| `GET`    | `/api/proyectos/{id}`  | Obtiene un proyecto por su ID.      | `ADMINISTRADOR`, `DOCENTE`, `BECARIO` |
+| `PUT`    | `/api/proyectos/{id}`  | Actualiza un proyecto.              | `ADMINISTRADOR`                       |
+| `DELETE` | `/api/proyectos/{id}`  | Elimina un proyecto.                | `ADMINISTRADOR`                       |
 
-| Método   | Endpoint                      | Descripción                               | Acceso          |
-| :------- | :---------------------------- | :---------------------------------------- | :-------------- |
-| `POST`   | `/api/otra-entidad`           | Crea un nuevo recurso.                    | `ADMIN`         |
-| `GET`    | `/api/otra-entidad/{id}`      | Obtiene un recurso específico por su ID.  | `USER`, `ADMIN` |
-| `PUT`    | `/api/otra-entidad/{id}`      | Actualiza un recurso existente.           | `ADMIN`         |
-| `DELETE` | `/api/otra-entidad/{id}`      | Elimina un recurso.                       | `ADMIN`         |
+### 📚 Gestión de Materias
+
+| Método   | Endpoint             | Descripción                       | Acceso                                |
+| :------- | :------------------- | :-------------------------------- | :------------------------------------ |
+| `POST`   | `/api/materias`      | Crea una nueva materia.           | `ADMINISTRADOR`                       |
+| `GET`    | `/api/materias`      | Lista todas las materias.         | `ADMINISTRADOR`, `DOCENTE`, `BECARIO` |
+| `GET`    | `/api/materias/{id}` | Obtiene una materia por su ID.    | `ADMINISTRADOR`, `DOCENTE`, `BECARIO` |
+| `PUT`    | `/api/materias/{id}` | Actualiza una materia.            | `ADMINISTRADOR`                       |
+| `DELETE` | `/api/materias/{id}` | Elimina una materia.              | `ADMINISTRADOR`                       |
+
+### 🎓 Gestión de Becas
+
+| Método   | Endpoint           | Descripción                     | Acceso                                |
+| :------- | :----------------- | :------------------------------ | :------------------------------------ |
+| `POST`   | `/api/becas`       | Crea una nueva beca.            | `ADMINISTRADOR`                       |
+| `GET`    | `/api/becas`       | Lista todas las becas.          | `ADMINISTRADOR`, `DOCENTE`, `BECARIO` |
+| `GET`    | `/api/becas/{id}`  | Obtiene una beca por su ID.     | `ADMINISTRADOR`, `DOCENTE`, `BECARIO` |
+| `PUT`    | `/api/becas/{id}`  | Actualiza una beca.             | `ADMINISTRADOR`                       |
+| `DELETE` | `/api/becas/{id}`  | Elimina una beca.               | `ADMINISTRADOR`                       |
+
+### 📝 Gestión de Actividades
+
+| Método   | Endpoint                 | Descripción                                  | Acceso                                               |
+| :------- | :----------------------- | :------------------------------------------- | :--------------------------------------------------- |
+| `POST`   | `/api/actividades`       | Registra una nueva actividad.                | `BECARIO`                                            |
+| `GET`    | `/api/actividades`       | Lista actividades (filtradas por usuario).   | `ADMINISTRADOR`, `DOCENTE`, `BECARIO`                |
+| `GET`    | `/api/actividades/{id}`  | Obtiene una actividad por su ID.             | Propietario, `DOCENTE` a cargo, `ADMINISTRADOR`      |
+| `PUT`    | `/api/actividades/{id}`  | Actualiza una actividad.                     | Propietario, `DOCENTE` a cargo, `ADMINISTRADOR`      |
+| `DELETE` | `/api/actividades/{id}`  | Elimina una actividad.                       | Propietario, `DOCENTE` a cargo, `ADMINISTRADOR`      |
+
+### 🛡️ Gestión de Roles
+
+| Método | Endpoint    | Descripción                         | Acceso          |
+| :----- | :---------- | :---------------------------------- | :-------------- |
+| `GET`  | `/api/roles`| Lista todos los roles disponibles.  | `ADMINISTRADOR` |
 
 ---
 
