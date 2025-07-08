@@ -71,6 +71,7 @@ public class UsuarioService {
         
         usuario.setNombre(dto.getNombre());
         usuario.setApellido(dto.getApellido());
+        usuario.setDni(dto.getDni());
         usuario.setEmail(dto.getEmail());
         Usuario updatedUsuario = usuarioRepository.save(usuario);
         return convertUsuarioToDto(updatedUsuario);
@@ -150,6 +151,7 @@ public class UsuarioService {
         dto.setId(usuario.getId());
         dto.setNombre(usuario.getNombre());
         dto.setApellido(usuario.getApellido());
+        dto.setDni(usuario.getDni());
         dto.setEmail(usuario.getEmail());
         dto.setRol(usuario.getRol() != null ? usuario.getRol().getNombre() : null);
         return dto;
