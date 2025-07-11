@@ -81,7 +81,7 @@ public class ProyectoService {
     // --- Métodos de Integrantes y Director ---
 
     @Transactional
-    public ProyectoResponseDTO agregarIntegrante(Long proyectoId, Long usuarioId) {
+    public void agregarIntegrante(Long proyectoId, Long usuarioId) {
         Proyecto proyecto = findProyectoById(proyectoId);
         Usuario usuario = findUsuarioById(usuarioId);
 
@@ -90,8 +90,8 @@ public class ProyectoService {
         }
 
         proyecto.getIntegrantes().add(usuario);
-        Proyecto proyectoGuardado = proyectoRepository.save(proyecto);
-        return convertToDto(proyectoGuardado);
+        proyectoRepository.save(proyecto);
+
     }
 
     @Transactional
@@ -105,12 +105,21 @@ public class ProyectoService {
     }
 
     @Transactional
-    public ProyectoResponseDTO asignarDirector(Long proyectoId, Long directorId) {
+    public void asignarDirector(Long proyectoId, Long directorId) {
         Proyecto proyecto = findProyectoById(proyectoId);
         Usuario director = findUsuarioById(directorId);
         proyecto.setDirector(director);
-        Proyecto proyectoGuardado = proyectoRepository.save(proyecto);
-        return convertToDto(proyectoGuardado);
+        proyectoRepository.save(proyecto);
+    }
+
+    @Transactional
+    public void quitarDirector(Long proyectoId) {
+        Proyecto proyecto = findProyectoById(proyectoId);
+        if (proyecto.getDirector() == null) {
+            throw new ResourceNotFoundException("El proyecto con ID " + proyectoId + " no tiene un director asignado.");
+        }
+        proyecto.setDirector(null);
+        proyectoRepository.save(proyecto);
     }
 
     @Transactional(readOnly = true)
@@ -134,7 +143,7 @@ public class ProyectoService {
     }
 
     @Transactional
-    public ActividadResponseDTO agregarActividadAProyecto(Long proyectoId, ActividadRequestDTO actividadDto) {
+    public ActividadResponseDTO crearYAsociarActividadAProyecto(Long proyectoId, ActividadRequestDTO actividadDto) {
         Proyecto proyecto = findProyectoById(proyectoId);
         Actividad nuevaActividad = new Actividad();
         nuevaActividad.setDescripcion(actividadDto.getDescripcion());
@@ -143,6 +152,20 @@ public class ProyectoService {
         nuevaActividad.setProyecto(proyecto);
         Actividad actividadGuardada = actividadRepository.save(nuevaActividad);
         return convertActividadToDto(actividadGuardada);
+    }
+    
+    @Transactional
+    public void asociarActividadAProyecto(Long proyectoId, Long actividadId) {
+        Proyecto proyecto = findProyectoById(proyectoId);
+        Actividad actividad = actividadRepository.findById(actividadId)
+                .orElseThrow(() -> new ResourceNotFoundException("Actividad no encontrada con ID: " + actividadId));
+
+        if (actividad.getProyecto() != null) {
+            throw new ConflictException("La actividad con ID " + actividadId + " ya está asociada al proyecto con ID " + actividad.getProyecto().getId());
+        }
+
+        actividad.setProyecto(proyecto);
+        actividadRepository.save(actividad);
     }
 
     @Transactional
@@ -153,7 +176,8 @@ public class ProyectoService {
         if (actividad.getProyecto() == null || !actividad.getProyecto().getId().equals(proyectoId)) {
             throw new ConflictException("La actividad no pertenece al proyecto especificado.");
         }
-        actividadRepository.deleteById(actividadId);
+        actividad.setProyecto(null);
+        actividadRepository.save(actividad);
     }
 
     // --- Métodos privados de ayuda y conversión ---

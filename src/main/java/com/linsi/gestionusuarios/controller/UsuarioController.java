@@ -84,12 +84,12 @@ public class UsuarioController {
     //ROLES
 
     @PreAuthorize("hasRole('ADMINISTRADOR')")
-    @PutMapping("/{id}/rol")
-    public ResponseEntity<UsuarioResponseDTO> asignarRol(
+    @PutMapping("/{id}/rol/{rolId}")
+    public ResponseEntity<Void> asignarRol(
             @PathVariable Long id,
-            @Valid @RequestBody AsignarRolDTO dto) {
-
-        return ResponseEntity.ok(usuarioService.asignarRol(id, dto.getRolId()));
+                @PathVariable Long rolId) {
+        usuarioService.asignarRol(id, rolId);
+        return ResponseEntity.noContent().build();
     }
 
     //BECAS

@@ -61,13 +61,13 @@ public class MateriaController {
     //USUARIOS
 
     @PreAuthorize("hasRole('ADMINISTRADOR') or hasRole('DOCENTE')")
-    @PostMapping("/{id}/integrantes")
-    public ResponseEntity<MateriaResponseDTO> asignarUsuarioAMateria(
+    @PutMapping("/{id}/integrantes/{usuarioId}")
+    public ResponseEntity<Void> asignarUsuarioAMateria(
             @PathVariable Long id,
-            @Valid @RequestBody AsignarIntegranteMateriaDTO dto) {
-
-        return ResponseEntity.ok(materiaService.asignarUsuarioAMateria(id, dto.getUsuarioId()));
-    }    
+                      @PathVariable Long usuarioId) {
+        materiaService.asignarUsuarioAMateria(id, usuarioId);
+        return ResponseEntity.noContent().build();
+    }  
 
     @PreAuthorize("hasRole('ADMINISTRADOR') or hasRole('DOCENTE')")
     @DeleteMapping("/{id}/integrantes/{usuarioId}")

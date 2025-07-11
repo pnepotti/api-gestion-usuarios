@@ -93,7 +93,7 @@ public class UsuarioService {
     }
 
     @Transactional
-    public UsuarioResponseDTO asignarRol(Long usuarioId, Long rolId) {
+    public void asignarRol(Long usuarioId, Long rolId) {
         Usuario usuario = usuarioRepository.findById(usuarioId)
             .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado con ID: " + usuarioId));
         
@@ -102,7 +102,6 @@ public class UsuarioService {
 
         usuario.setRol(rol);
         usuarioRepository.save(usuario);
-        return convertUsuarioToDto(usuario);
     }
 
     @Transactional(readOnly = true)

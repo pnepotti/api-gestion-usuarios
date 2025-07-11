@@ -58,12 +58,12 @@ public class BecaController {
     //USUARIOS
     
     @PreAuthorize("hasRole('ADMINISTRADOR')")
-    @PutMapping("/{id}/usuario")
-    public ResponseEntity<BecaResponseDTO> asignarUsuarioABeca(
+    @PutMapping("/{id}/usuario/{usuarioId}")
+    public ResponseEntity<Void> asignarUsuarioABeca(
             @PathVariable Long id,
-            @Valid @RequestBody AsignarUsuarioBecaDTO dto) {
-
-        return ResponseEntity.ok(becaService.asignarUsuarioABeca(id, dto.getUsuarioId()));
+            @PathVariable Long usuarioId) {
+        becaService.asignarUsuarioABeca(id, usuarioId);
+        return ResponseEntity.noContent().build();
     }    
 
     @PreAuthorize("hasRole('ADMINISTRADOR')")

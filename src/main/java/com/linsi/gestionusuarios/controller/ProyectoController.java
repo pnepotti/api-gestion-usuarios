@@ -61,11 +61,12 @@ public class ProyectoController {
     //USUARIOS
 
     @PreAuthorize("hasRole('ADMINISTRADOR') or @proyectoSecurity.esDirector(#id, authentication.principal.id))")
-    @PostMapping("/{id}/integrantes")
-    public ResponseEntity<ProyectoResponseDTO> agregarIntegrante(
+    @PutMapping("/{id}/integrantes/{usuarioId}")
+    public ResponseEntity<Void> agregarIntegrante(
             @PathVariable Long id,
-            @Valid @RequestBody AsignarIntegranteDTO dto) {
-        return ResponseEntity.ok(proyectoService.agregarIntegrante(id, dto.getUsuarioId()));
+            @PathVariable Long usuarioId) {
+        proyectoService.agregarIntegrante(id, usuarioId);
+        return ResponseEntity.noContent().build();
     }
 
     @PreAuthorize("hasRole('ADMINISTRADOR') or @proyectoSecurity.esDirector(#id, authentication.principal.id))")
@@ -78,11 +79,20 @@ public class ProyectoController {
     }
 
     @PreAuthorize("hasRole('ADMINISTRADOR')")
-    @PutMapping("/{id}/director")
-    public ResponseEntity<ProyectoResponseDTO> asignarDirector(
+    @PutMapping("/{id}/director/{directorId}")
+    public ResponseEntity<Void> asignarDirector(
             @PathVariable Long id,
-            @Valid @RequestBody AsignarDirectorDTO dto) {
-        return ResponseEntity.ok(proyectoService.asignarDirector(id, dto.getDirectorId()));
+            @PathVariable Long directorId) {
+        proyectoService.asignarDirector(id, directorId);
+        return ResponseEntity.noContent().build();
+    }
+
+    @PreAuthorize("hasRole('ADMINISTRADOR')")
+    @DeleteMapping("/{id}/director")
+    public ResponseEntity<Void> quitarDirector(
+            @PathVariable Long id) {
+        proyectoService.quitarDirector(id);
+        return ResponseEntity.noContent().build();
     }
 
     @PreAuthorize("hasRole('ADMINISTRADOR') or @proyectoSecurity.esDirectorOIntegrante(#id, authentication.principal.id))")
@@ -101,11 +111,20 @@ public class ProyectoController {
 
     @PreAuthorize("hasRole('ADMINISTRADOR') or @proyectoSecurity.esDirector(#id, authentication.principal.id)")
     @PostMapping("/{id}/actividades")
-    public ResponseEntity<ActividadResponseDTO> agregarActividadAProyecto(
+    public ResponseEntity<ActividadResponseDTO> crearYAsociarActividadAProyecto(
             @PathVariable Long id,
             @Valid @RequestBody ActividadRequestDTO actividadDto) {
-        ActividadResponseDTO actividadGuardada = proyectoService.agregarActividadAProyecto(id, actividadDto);
+        ActividadResponseDTO actividadGuardada = proyectoService.crearYAsociarActividadAProyecto(id, actividadDto);
         return ResponseEntity.status(HttpStatus.CREATED).body(actividadGuardada);
+    }
+
+    @PreAuthorize("hasRole('ADMINISTRADOR') or @proyectoSecurity.esDirector(#id, authentication.principal.id)")
+    @PutMapping("/{id}/actividades/{actividadId}")
+    public ResponseEntity<Void> asociarActividadAProyecto(
+            @PathVariable Long id,
+            @PathVariable Long actividadId) {
+        proyectoService.asociarActividadAProyecto(id, actividadId);
+        return ResponseEntity.noContent().build();
     }
 
     @PreAuthorize("hasRole('ADMINISTRADOR') or @proyectoSecurity.esDirector(#id, authentication.principal.id)")

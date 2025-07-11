@@ -74,7 +74,7 @@ public class BecaService {
     }
 
     @Transactional
-    public BecaResponseDTO asignarUsuarioABeca(Long becaId, Long usuarioId) {
+    public void asignarUsuarioABeca(Long becaId, Long usuarioId) {
         Beca beca = findBecaById(becaId);
         Usuario usuario = findUsuarioById(usuarioId);
 
@@ -83,8 +83,7 @@ public class BecaService {
         }
 
         beca.setUsuario(usuario);
-        Beca becaGuardada = becaRepository.save(beca);
-        return convertToDto(becaGuardada);
+        becaRepository.save(beca);
     }
 
     @Transactional

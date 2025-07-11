@@ -69,7 +69,7 @@ public class MateriaService {
     }
 
     @Transactional
-    public MateriaResponseDTO asignarUsuarioAMateria(Long materiaId, Long usuarioId) {
+    public void asignarUsuarioAMateria(Long materiaId, Long usuarioId) {
         Materia materia = findMateriaById(materiaId);
         Usuario usuario = findUsuarioById(usuarioId);
 
@@ -78,8 +78,7 @@ public class MateriaService {
         }
 
         materia.getIntegrantes().add(usuario);
-        Materia materiaGuardada = materiaRepository.save(materia);
-        return convertToDto(materiaGuardada);
+        materiaRepository.save(materia);
     }
 
     @Transactional
