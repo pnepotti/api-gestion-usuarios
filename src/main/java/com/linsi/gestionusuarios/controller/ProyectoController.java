@@ -7,10 +7,8 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import com.linsi.gestionusuarios.dto.ActividadRequestDTO;
 import com.linsi.gestionusuarios.dto.ActividadResponseDTO;
-import com.linsi.gestionusuarios.dto.AsignarDirectorDTO;
 import com.linsi.gestionusuarios.dto.ProyectoRequestDTO;
 import com.linsi.gestionusuarios.dto.ProyectoResponseDTO;
-import com.linsi.gestionusuarios.dto.AsignarIntegranteDTO;
 import com.linsi.gestionusuarios.dto.UsuarioResponseDTO;
 import com.linsi.gestionusuarios.service.ProyectoService;
 
@@ -32,7 +30,7 @@ public class ProyectoController {
         return ResponseEntity.ok(proyectoService.listarProyectos());
     }
 
-    @PreAuthorize("hasRole('ADMINISTRADOR') or @proyectoSecurity.esDirectorOIntegrante(#id, authentication.principal.id))")
+    @PreAuthorize("hasRole('ADMINISTRADOR') or @proyectoSecurity.esDirectorOIntegrante(#id, authentication.principal.id)")
     @GetMapping("/{id}")
     public ResponseEntity<ProyectoResponseDTO> obtenerProyecto(@PathVariable Long id) {
         return ResponseEntity.ok(proyectoService.obtenerProyecto(id));
@@ -45,13 +43,13 @@ public class ProyectoController {
         return ResponseEntity.status(HttpStatus.CREATED).body(proyectoGuardado);
     }
 
-    @PreAuthorize("hasRole('ADMINISTRADOR') or @proyectoSecurity.esDirector(#id, authentication.principal.id))")
+    @PreAuthorize("hasRole('ADMINISTRADOR') or @proyectoSecurity.esDirector(#id, authentication.principal.id)")
     @PutMapping("/{id}")
     public ResponseEntity<ProyectoResponseDTO> actualizarProyecto(@PathVariable Long id, @Valid @RequestBody ProyectoRequestDTO proyectoDto) {
         return ResponseEntity.ok(proyectoService.actualizarProyecto(id, proyectoDto));
     }
 
-    @PreAuthorize("hasRole('ADMINISTRADOR') or @proyectoSecurity.esDirector(#id, authentication.principal.id))")
+    @PreAuthorize("hasRole('ADMINISTRADOR') or @proyectoSecurity.esDirector(#id, authentication.principal.id)")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> eliminarProyecto(@PathVariable Long id) {
         proyectoService.eliminarProyecto(id);
@@ -60,7 +58,7 @@ public class ProyectoController {
 
     //USUARIOS
 
-    @PreAuthorize("hasRole('ADMINISTRADOR') or @proyectoSecurity.esDirector(#id, authentication.principal.id))")
+    @PreAuthorize("hasRole('ADMINISTRADOR') or @proyectoSecurity.esDirector(#id, authentication.principal.id)")
     @PutMapping("/{id}/integrantes/{usuarioId}")
     public ResponseEntity<Void> agregarIntegrante(
             @PathVariable Long id,
@@ -69,7 +67,7 @@ public class ProyectoController {
         return ResponseEntity.noContent().build();
     }
 
-    @PreAuthorize("hasRole('ADMINISTRADOR') or @proyectoSecurity.esDirector(#id, authentication.principal.id))")
+    @PreAuthorize("hasRole('ADMINISTRADOR') or @proyectoSecurity.esDirector(#id, authentication.principal.id)")
     @DeleteMapping("/{id}/integrantes/{usuarioId}")
     public ResponseEntity<Void> quitarIntegrante(
             @PathVariable Long id,
@@ -95,7 +93,7 @@ public class ProyectoController {
         return ResponseEntity.noContent().build();
     }
 
-    @PreAuthorize("hasRole('ADMINISTRADOR') or @proyectoSecurity.esDirectorOIntegrante(#id, authentication.principal.id))")
+    @PreAuthorize("hasRole('ADMINISTRADOR') or @proyectoSecurity.esDirectorOIntegrante(#id, authentication.principal.id)")
     @GetMapping("/{id}/integrantes")
     public ResponseEntity<List<UsuarioResponseDTO>> listarIntegrantesDeProyecto(@PathVariable Long id) {
         return ResponseEntity.ok(proyectoService.listarIntegrantesDeProyecto(id));

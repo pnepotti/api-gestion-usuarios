@@ -1,10 +1,10 @@
 package com.linsi.gestionusuarios.model;
 
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
-
-import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import jakarta.persistence.*;
 import lombok.*;
@@ -13,56 +13,58 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 @Entity
-@Data
+@Getter
+@Setter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "usuario")
+@ToString(exclude = {"rol", "materias", "becas", "proyectos", "proyectosDirigidos"})
 public class Usuario implements UserDetails {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(nullable = false)
     private String nombre;
 
+    @Column(nullable = false)
     private String apellido;
 
-    @Column(unique = true)
+    @Column(unique = true, nullable = false)
     private String dni;
 
-    @Column(unique = true)
+    @Column(unique = true, nullable = true)
     private String legajo;
 
     @Column(unique = true, nullable = false)
     private String email;
 
     @Column(nullable = false)
-    @JsonIgnore
     private String password;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "rol_id")
     private Rol rol; // Puede ser null al crear el usuario
 
-    @ManyToMany
+    @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
         name = "usuario_materia",
         joinColumns = @JoinColumn(name = "usuario_id"),
         inverseJoinColumns = @JoinColumn(name = "materia_id")
     )
-    private Set<Materia> materias;
+    private Set<Materia> materias = new HashSet<>();
 
-    @OneToMany(mappedBy = "usuario", fetch = FetchType.LAZY)
-    @JsonIgnore
-    private Set<Beca> becas;
+    // Si un usuario es eliminado, sus becas también deberían serlo.
+    @OneToMany(mappedBy = "usuario", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<Beca> becas = new HashSet<>();
 
-    @ManyToMany(mappedBy = "integrantes")
-    private Set<Proyecto> proyectos;
+    @ManyToMany(mappedBy = "integrantes", fetch = FetchType.LAZY)
+    private Set<Proyecto> proyectos = new HashSet<>();
 
     @OneToMany(mappedBy = "director", fetch = FetchType.LAZY)
-    @JsonIgnore
-    private Set<Proyecto> proyectosDirigidos;
+    private Set<Proyecto> proyectosDirigidos = new HashSet<>();
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
@@ -97,5 +99,18 @@ public class Usuario implements UserDetails {
     @Override
     public boolean isEnabled() {
         return true;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Usuario usuario = (Usuario) o;
+        return Objects.equals(email, usuario.email);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(email);
     }
 }

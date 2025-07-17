@@ -7,11 +7,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-import com.linsi.gestionusuarios.dto.AsignarIntegranteMateriaDTO;
 import com.linsi.gestionusuarios.dto.MateriaRequestDTO;
 import com.linsi.gestionusuarios.dto.MateriaResponseDTO;
 import com.linsi.gestionusuarios.dto.UsuarioResponseDTO;
-
 import com.linsi.gestionusuarios.service.MateriaService;
 
 import io.swagger.v3.oas.annotations.tags.Tag;

@@ -1,6 +1,5 @@
 package com.linsi.gestionusuarios.controller;
 
-
 import com.linsi.gestionusuarios.model.Usuario;
 import com.linsi.gestionusuarios.service.UsuarioService;
 
@@ -15,7 +14,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 
-import com.linsi.gestionusuarios.dto.AsignarRolDTO;
 import com.linsi.gestionusuarios.dto.BecaResponseDTO;
 import com.linsi.gestionusuarios.dto.CambiarPasswordDTO;
 import com.linsi.gestionusuarios.dto.MateriaResponseDTO;

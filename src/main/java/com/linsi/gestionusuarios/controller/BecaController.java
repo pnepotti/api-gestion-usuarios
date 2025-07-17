@@ -13,7 +13,6 @@ import lombok.RequiredArgsConstructor;
 
 import com.linsi.gestionusuarios.dto.BecaRequestDTO;
 import com.linsi.gestionusuarios.dto.BecaResponseDTO;
-import com.linsi.gestionusuarios.dto.AsignarUsuarioBecaDTO;
 
 @RestController
 @RequestMapping("/api/becas")
