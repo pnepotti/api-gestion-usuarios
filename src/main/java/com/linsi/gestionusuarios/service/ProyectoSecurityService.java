@@ -12,21 +12,16 @@ public class ProyectoSecurityService {
 
     @Transactional(readOnly = true)
     public boolean esDirector(Long proyectoId, Long usuarioId) {
-        return proyectoRepository.findById(proyectoId)
-                .map(proyecto -> proyecto.getDirector() != null && proyecto.getDirector().getId().equals(usuarioId))
-                .orElse(false);
+        return proyectoRepository.esDirector(proyectoId, usuarioId);
     }
 
     @Transactional(readOnly = true)
     public boolean esIntegrante(Long proyectoId, Long usuarioId) {
-        return proyectoRepository.findById(proyectoId)
-            .map(p -> p.getIntegrantes().stream().anyMatch(u -> u.getId().equals(usuarioId)))
-            .orElse(false);
+        return proyectoRepository.esIntegrante(proyectoId, usuarioId);
     }
 
     @Transactional(readOnly = true)
     public boolean esDirectorOIntegrante(Long proyectoId, Long usuarioId) {
-        // Reutiliza los otros métodos para mantener el código limpio (DRY)
         return esDirector(proyectoId, usuarioId) || esIntegrante(proyectoId, usuarioId);
     }
 }

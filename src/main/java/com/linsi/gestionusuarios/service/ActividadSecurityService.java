@@ -24,16 +24,22 @@ public class ActividadSecurityService {
         }
         Actividad actividad = actividadOpt.get();
 
-        if (authentication.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_ADMINISTRADOR"))) {
+        if (hasRole(authentication, "ADMINISTRADOR")) {
             return true;
         }
 
         Long usuarioId = ((Usuario) authentication.getPrincipal()).getId();
 
         if (actividad.getProyecto() == null) {
-            return authentication.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_DOCENTE"));
+            return hasRole(authentication, "DOCENTE");
         } else {
             return proyectoSecurityService.esDirector(actividad.getProyecto().getId(), usuarioId);
         }
+    }
+
+    private boolean hasRole(Authentication authentication, String roleName) {
+        // El prefijo "ROLE_" es añadido por Spring Security automáticamente.
+        return authentication.getAuthorities().stream()
+                .anyMatch(a -> a.getAuthority().equals("ROLE_" + roleName));
     }
 }        

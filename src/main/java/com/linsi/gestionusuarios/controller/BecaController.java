@@ -1,18 +1,24 @@
 package com.linsi.gestionusuarios.controller;
 
 import java.util.List;
-import org.springframework.http.HttpStatus;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.linsi.gestionusuarios.dto.BecaRequestDTO;
+import com.linsi.gestionusuarios.dto.BecaResponseDTO;
 import com.linsi.gestionusuarios.service.BecaService;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-
-import com.linsi.gestionusuarios.dto.BecaRequestDTO;
-import com.linsi.gestionusuarios.dto.BecaResponseDTO;
 
 @RestController
 @RequestMapping("/api/becas")
@@ -35,13 +41,6 @@ public class BecaController {
     }
 
     @PreAuthorize("hasRole('ADMINISTRADOR')")
-    @PostMapping
-    public ResponseEntity<BecaResponseDTO> crearBeca(@Valid @RequestBody BecaRequestDTO becaDto) {
-        BecaResponseDTO becaGuardada = becaService.crearBeca(becaDto);
-        return ResponseEntity.status(HttpStatus.CREATED).body(becaGuardada);
-    }
-
-    @PreAuthorize("hasRole('ADMINISTRADOR')")
     @PutMapping("/{id}")
     public ResponseEntity<BecaResponseDTO> actualizarBeca(@PathVariable Long id, @Valid @RequestBody BecaRequestDTO becaDto) {
         return ResponseEntity.ok(becaService.actualizarBeca(id, becaDto));
@@ -51,24 +50,6 @@ public class BecaController {
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> eliminarBeca(@PathVariable Long id) {
         becaService.eliminarBeca(id);
-        return ResponseEntity.noContent().build();
-    }
-
-    //USUARIOS
-    
-    @PreAuthorize("hasRole('ADMINISTRADOR')")
-    @PutMapping("/{id}/usuario/{usuarioId}")
-    public ResponseEntity<Void> asignarUsuarioABeca(
-            @PathVariable Long id,
-            @PathVariable Long usuarioId) {
-        becaService.asignarUsuarioABeca(id, usuarioId);
-        return ResponseEntity.noContent().build();
-    }    
-
-    @PreAuthorize("hasRole('ADMINISTRADOR')")
-    @DeleteMapping("/{id}/usuario")
-    public ResponseEntity<?> quitarUsuarioDeBeca(@PathVariable Long id) {
-        becaService.quitarUsuarioDeBeca(id);
         return ResponseEntity.noContent().build();
     }
 

@@ -8,9 +8,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.linsi.gestionusuarios.dto.BecaRequestDTO;
 import com.linsi.gestionusuarios.dto.BecaResponseDTO;
-import com.linsi.gestionusuarios.dto.UsuarioResponseDTO;
 import com.linsi.gestionusuarios.exception.ConflictException;
 import com.linsi.gestionusuarios.exception.ResourceNotFoundException;
+import com.linsi.gestionusuarios.mapper.BecaMapper;
 import com.linsi.gestionusuarios.model.Beca;
 import com.linsi.gestionusuarios.model.Usuario;
 import com.linsi.gestionusuarios.repository.BecaRepository;
@@ -24,53 +24,65 @@ public class BecaService {
 
     private final BecaRepository becaRepository;
     private final UsuarioRepository usuarioRepository;
+    private final BecaMapper becaMapper;
 
     @Transactional(readOnly = true)
     public List<BecaResponseDTO> listarBecas() {
         return becaRepository.findAll().stream()
-                .map(this::convertToDto)
+                .map(becaMapper::toDto)
                 .collect(Collectors.toList());
     }
 
     @Transactional(readOnly = true)
     public BecaResponseDTO obtenerBeca(Long becaId) {
         return becaRepository.findById(becaId)
-                .map(this::convertToDto)
+                .map(becaMapper::toDto)
                 .orElseThrow(() -> new ResourceNotFoundException("Beca no encontrada con ID: " + becaId));
     }
 
     @Transactional
-    public BecaResponseDTO crearBeca(BecaRequestDTO becaDto) {
-        Beca nuevaBeca = new Beca();
-        nuevaBeca.setNombre(becaDto.getNombre());
-        nuevaBeca.setTipo(becaDto.getTipo());
-        nuevaBeca.setMonto(becaDto.getMonto());
-        nuevaBeca.setFechaInicio(becaDto.getFechaInicio());
-        nuevaBeca.setFechaFin(becaDto.getFechaFin());
-        nuevaBeca.setDuracion(becaDto.getDuracion());
+    public BecaResponseDTO crearBecaParaUsuario(Long usuarioId, BecaRequestDTO becaDto) {
+
+        Usuario usuario = findUsuarioById(usuarioId);
+
+        Beca nuevaBeca = becaMapper.toEntity(becaDto);
+        nuevaBeca.setUsuario(usuario);
+        usuario.getBecas().add(nuevaBeca);
+        
         Beca becaGuardada = becaRepository.save(nuevaBeca);
-        return convertToDto(becaGuardada);
+        return becaMapper.toDto(becaGuardada);
     }
 
     @Transactional
     public BecaResponseDTO actualizarBeca(Long becaId, BecaRequestDTO becaDto) {
         Beca becaExistente = findBecaById(becaId);
         becaExistente.setNombre(becaDto.getNombre());
-        becaExistente.setTipo(becaDto.getTipo());
+        becaExistente.setTipo(becaDto.getTipo());   
         becaExistente.setMonto(becaDto.getMonto());
         becaExistente.setFechaInicio(becaDto.getFechaInicio());
         becaExistente.setFechaFin(becaDto.getFechaFin());
         becaExistente.setDuracion(becaDto.getDuracion());
         Beca becaActualizada = becaRepository.save(becaExistente);
-        return convertToDto(becaActualizada);
+        return becaMapper.toDto(becaActualizada);
     }
 
     @Transactional
     public void eliminarBeca(Long becaId) {
-        if (!becaRepository.existsById(becaId)) {
-            throw new ResourceNotFoundException("Beca no encontrada con ID: " + becaId);
+        Beca beca = findBecaById(becaId);
+
+        // Si la beca está asociada a un usuario, la desvinculamos primero para mantener la consistencia.
+        if (beca.getUsuario() != null) {
+            beca.getUsuario().getBecas().remove(beca);
         }
-        becaRepository.deleteById(becaId);
+        becaRepository.delete(beca);
+    }
+
+    @Transactional
+    public void eliminarBecasDeUsuario(Long usuarioId) {
+        List<Beca> becas = becaRepository.findByUsuarioId(usuarioId);
+        if (!becas.isEmpty()) {
+            becaRepository.deleteAll(becas);
+        }
     }
 
     @Transactional
@@ -83,17 +95,28 @@ public class BecaService {
         }
 
         beca.setUsuario(usuario);
-        becaRepository.save(beca);
+        usuario.getBecas().add(beca);
     }
 
     @Transactional
     public void quitarUsuarioDeBeca(Long becaId) {
         Beca beca = findBecaById(becaId);
-        if (beca.getUsuario() == null) {
+        Usuario usuario = beca.getUsuario();
+        if (usuario == null) {
             throw new ResourceNotFoundException("La beca no tiene ningún usuario asignado.");
         }
         beca.setUsuario(null);
-        becaRepository.save(beca);
+        usuario.getBecas().remove(beca);
+    }
+
+    @Transactional(readOnly = true)
+    public List<BecaResponseDTO> listarBecasPorUsuario(Long usuarioId) {
+        if (!usuarioRepository.existsById(usuarioId)) {
+            throw new ResourceNotFoundException("Usuario no encontrado con ID: " + usuarioId);
+        }
+        return becaRepository.findByUsuarioId(usuarioId).stream()
+                .map(becaMapper::toDto)
+                .collect(Collectors.toList());
     }
 
     private Beca findBecaById(Long becaId) {
@@ -104,30 +127,5 @@ public class BecaService {
     private Usuario findUsuarioById(Long usuarioId) {
         return usuarioRepository.findById(usuarioId)
                 .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado con ID: " + usuarioId));
-    }
-
-    private BecaResponseDTO convertToDto(Beca beca) {
-        BecaResponseDTO dto = new BecaResponseDTO();
-        dto.setId(beca.getId());
-        dto.setNombre(beca.getNombre());
-        dto.setTipo(beca.getTipo());
-        dto.setMonto(beca.getMonto());
-        dto.setFechaInicio(beca.getFechaInicio());
-        dto.setFechaFin(beca.getFechaFin());
-        dto.setDuracion(beca.getDuracion());
-        if (beca.getUsuario() != null) {
-            dto.setUsuario(convertUsuarioToDto(beca.getUsuario()));
-        }
-        return dto;
-    }
-
-    private UsuarioResponseDTO convertUsuarioToDto(Usuario usuario) {
-        UsuarioResponseDTO dto = new UsuarioResponseDTO();
-        dto.setId(usuario.getId());
-        dto.setNombre(usuario.getNombre());
-        dto.setApellido(usuario.getApellido());
-        dto.setEmail(usuario.getEmail());
-        dto.setRol(usuario.getRol() != null ? usuario.getRol().getNombre() : null);
-        return dto;
     }
 }

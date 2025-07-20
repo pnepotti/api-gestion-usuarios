@@ -5,6 +5,8 @@ import com.linsi.gestionusuarios.dto.MateriaResponseDTO;
 import com.linsi.gestionusuarios.dto.UsuarioResponseDTO;
 import com.linsi.gestionusuarios.exception.ConflictException;
 import com.linsi.gestionusuarios.exception.ResourceNotFoundException;
+import com.linsi.gestionusuarios.mapper.MateriaMapper;
+import com.linsi.gestionusuarios.mapper.UsuarioMapper;
 import com.linsi.gestionusuarios.model.Materia;
 import com.linsi.gestionusuarios.model.Usuario;
 import com.linsi.gestionusuarios.repository.MateriaRepository;
@@ -22,30 +24,28 @@ public class MateriaService {
 
     private final MateriaRepository materiaRepository;
     private final UsuarioRepository usuarioRepository;
+    private final MateriaMapper materiaMapper;
+    private final UsuarioMapper usuarioMapper;
 
     @Transactional(readOnly = true)
     public List<MateriaResponseDTO> listarMaterias() {
         return materiaRepository.findAll().stream()
-                .map(this::convertToDto)
+                .map(materiaMapper::toDto)
                 .collect(Collectors.toList());
     }
 
     @Transactional(readOnly = true)
     public MateriaResponseDTO obtenerMateria(Long materiaId) {
         return materiaRepository.findById(materiaId)
-                .map(this::convertToDto)
+                .map(materiaMapper::toDto)
                 .orElseThrow(() -> new ResourceNotFoundException("Materia no encontrada con ID: " + materiaId));
     }
 
     @Transactional
     public MateriaResponseDTO crearMateria(MateriaRequestDTO materiaDto) {
-        Materia nuevaMateria = new Materia();
-        nuevaMateria.setNombre(materiaDto.getNombre());
-        nuevaMateria.setCodigo(materiaDto.getCodigo());
-        nuevaMateria.setAnio(materiaDto.getAnio());
-        nuevaMateria.setDescripcion(materiaDto.getDescripcion());
+        Materia nuevaMateria = materiaMapper.toEntity(materiaDto);
         Materia materiaGuardada = materiaRepository.save(nuevaMateria);
-        return convertToDto(materiaGuardada);
+        return materiaMapper.toDto(materiaGuardada);
     }
 
     @Transactional
@@ -56,16 +56,17 @@ public class MateriaService {
         materiaExistente.setAnio(materiaDto.getAnio());
         materiaExistente.setDescripcion(materiaDto.getDescripcion());
         Materia materiaActualizada = materiaRepository.save(materiaExistente);
-        return convertToDto(materiaActualizada);
+        return materiaMapper.toDto(materiaActualizada);
     }
 
     @Transactional
     public void eliminarMateria(Long materiaId) {
-        Materia materia = findMateriaById(materiaId);
-        if (!materia.getIntegrantes().isEmpty()) {
-            throw new ConflictException("No se puede eliminar la materia porque tiene integrantes asignados.");
+        Materia materia = findMateriaById(materiaId);        
+        for (Usuario integrante : new java.util.HashSet<>(materia.getIntegrantes())) {
+            integrante.getMaterias().remove(materia);
         }
-        materiaRepository.deleteById(materiaId);
+        materia.getIntegrantes().clear();
+        materiaRepository.delete(materia);
     }
 
     @Transactional
@@ -78,24 +79,27 @@ public class MateriaService {
         }
 
         materia.getIntegrantes().add(usuario);
-        materiaRepository.save(materia);
+        usuario.getMaterias().add(materia);
     }
 
     @Transactional
     public void quitarUsuarioDeMateria(Long materiaId, Long usuarioId) {
         Materia materia = findMateriaById(materiaId);
-        boolean removed = materia.getIntegrantes().removeIf(integrante -> integrante.getId().equals(usuarioId));
-        if (!removed) {
-            throw new ResourceNotFoundException("El usuario no es integrante de esta materia.");
+        Usuario usuario = findUsuarioById(usuarioId);
+
+        if (materia.getIntegrantes().contains(usuario)) {
+            materia.getIntegrantes().remove(usuario);
+            usuario.getMaterias().remove(materia);
+        } else {
+            throw new ResourceNotFoundException("El usuario con ID " + usuarioId + " no es integrante de la materia con ID " + materiaId);
         }
-        materiaRepository.save(materia);
     }
 
     @Transactional(readOnly = true)
     public List<UsuarioResponseDTO> listarIntegrantesDeMateria(Long materiaId) {
         Materia materia = findMateriaById(materiaId);
         return materia.getIntegrantes().stream()
-                .map(this::convertUsuarioToDto)
+                .map(usuarioMapper::toDto)
                 .collect(Collectors.toList());
     }
 
@@ -107,26 +111,6 @@ public class MateriaService {
     private Usuario findUsuarioById(Long usuarioId) {
         return usuarioRepository.findById(usuarioId)
                 .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado con ID: " + usuarioId));
-    }
-
-    private MateriaResponseDTO convertToDto(Materia materia) {
-        MateriaResponseDTO dto = new MateriaResponseDTO();
-        dto.setId(materia.getId());
-        dto.setNombre(materia.getNombre());
-        dto.setCodigo(materia.getCodigo());
-        dto.setAnio(materia.getAnio());
-        dto.setDescripcion(materia.getDescripcion());
-        return dto;
-    }
-
-    private UsuarioResponseDTO convertUsuarioToDto(Usuario usuario) {
-        UsuarioResponseDTO dto = new UsuarioResponseDTO();
-        dto.setId(usuario.getId());
-        dto.setNombre(usuario.getNombre());
-        dto.setApellido(usuario.getApellido());
-        dto.setEmail(usuario.getEmail());
-        dto.setRol(usuario.getRol() != null ? usuario.getRol().getNombre() : null);
-        return dto;
     }
 }
 

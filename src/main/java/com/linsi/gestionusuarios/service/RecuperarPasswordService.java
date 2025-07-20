@@ -1,7 +1,10 @@
 package com.linsi.gestionusuarios.service;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.scheduling.annotation.Async;
+
 import com.linsi.gestionusuarios.exception.InvalidTokenException;
 import com.linsi.gestionusuarios.model.PasswordResetToken;
 import com.linsi.gestionusuarios.model.Usuario;
@@ -26,7 +29,10 @@ public class RecuperarPasswordService {
     private final PasswordEncoder passwordEncoder;
     private final JavaMailSender mailSender;
 
+    @Value("${app.frontend.url}")
+    private String frontendUrl;
 
+    @Async
     private void enviarEmail(String email, String enlace) {
         SimpleMailMessage message = new SimpleMailMessage();
         message.setTo(email);
@@ -55,8 +61,8 @@ public class RecuperarPasswordService {
                 LocalDateTime.now().plusHours(1)); // Token válido por 1 hora
         tokenRepo.save(resetToken);
 
-        // Enlace de recuperación (ajusta la URL según tu frontend)
-        String enlace = "https://tusitio.com/restablecer?token=" + token;
+        // Enlace de recuperación (ajustar la URL según el frontend)
+        String enlace = frontendUrl + "/restablecer-password?token=" + token;
         enviarEmail(usuario.getEmail(), enlace);
     }
 

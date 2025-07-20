@@ -13,6 +13,9 @@ import com.linsi.gestionusuarios.dto.ProyectoResponseDTO;
 import com.linsi.gestionusuarios.dto.UsuarioResponseDTO;
 import com.linsi.gestionusuarios.exception.ConflictException;
 import com.linsi.gestionusuarios.exception.ResourceNotFoundException;
+import com.linsi.gestionusuarios.mapper.ActividadMapper;
+import com.linsi.gestionusuarios.mapper.ProyectoMapper;
+import com.linsi.gestionusuarios.mapper.UsuarioMapper;
 import com.linsi.gestionusuarios.model.Actividad;
 import com.linsi.gestionusuarios.model.Proyecto;
 import com.linsi.gestionusuarios.model.Usuario;
@@ -29,33 +32,31 @@ public class ProyectoService {
     private final ProyectoRepository proyectoRepository;
     private final UsuarioRepository usuarioRepository;
     private final ActividadRepository actividadRepository;
+    private final ProyectoMapper proyectoMapper;
+    private final UsuarioMapper usuarioMapper;
+    private final ActividadMapper actividadMapper;
 
      // --- Métodos de Proyectos ---
 
     @Transactional(readOnly = true)
     public List<ProyectoResponseDTO> listarProyectos() {
         return proyectoRepository.findAll().stream()
-                .map(this::convertToDto)
+                .map(proyectoMapper::toDto)
                 .collect(Collectors.toList());
     }
 
     @Transactional(readOnly = true)
     public ProyectoResponseDTO obtenerProyecto(Long proyectoId) {
         return proyectoRepository.findById(proyectoId)
-                .map(this::convertToDto)
+                .map(proyectoMapper::toDto)
                 .orElseThrow(() -> new ResourceNotFoundException("Proyecto no encontrado con ID: " + proyectoId));
     }
 
     @Transactional
     public ProyectoResponseDTO crearProyecto(ProyectoRequestDTO proyectoDto) {
-        Proyecto nuevoProyecto = new Proyecto();
-        nuevoProyecto.setTitulo(proyectoDto.getTitulo());
-        nuevoProyecto.setDescripcion(proyectoDto.getDescripcion());
-        nuevoProyecto.setFechaInicio(proyectoDto.getFechaInicio());
-        nuevoProyecto.setFechaFin(proyectoDto.getFechaFin());
-        nuevoProyecto.setEstado(proyectoDto.getEstado());
+        Proyecto nuevoProyecto = proyectoMapper.toEntity(proyectoDto);
         Proyecto proyectoGuardado = proyectoRepository.save(nuevoProyecto);
-        return convertToDto(proyectoGuardado);
+        return proyectoMapper.toDto(proyectoGuardado);
     }
 
     @Transactional
@@ -67,15 +68,25 @@ public class ProyectoService {
         proyectoExistente.setFechaFin(proyectoDto.getFechaFin());
         proyectoExistente.setEstado(proyectoDto.getEstado());
         Proyecto proyectoActualizado = proyectoRepository.save(proyectoExistente);
-        return convertToDto(proyectoActualizado);
+        return proyectoMapper.toDto(proyectoActualizado);
     }
 
     @Transactional
     public void eliminarProyecto(Long proyectoId) {
-        if (!proyectoRepository.existsById(proyectoId)) {
-            throw new ResourceNotFoundException("Proyecto no encontrado con ID: " + proyectoId);
+        Proyecto proyecto = findProyectoById(proyectoId);        
+        if (proyecto.getDirector() != null) {
+            proyecto.getDirector().getProyectosDirigidos().remove(proyecto);
+            proyecto.setDirector(null);
+        }        
+        for (Usuario integrante : new java.util.HashSet<>(proyecto.getIntegrantes())) {
+            integrante.getProyectos().remove(proyecto);
         }
-        proyectoRepository.deleteById(proyectoId);
+        proyecto.getIntegrantes().clear();
+        for (Actividad actividad : new java.util.HashSet<>(proyecto.getActividades())) {
+            actividad.setProyecto(null); 
+        }
+        proyecto.getActividades().clear();
+        proyectoRepository.delete(proyecto);
     }
 
     // --- Métodos de Integrantes y Director ---
@@ -90,43 +101,51 @@ public class ProyectoService {
         }
 
         proyecto.getIntegrantes().add(usuario);
-        proyectoRepository.save(proyecto);
+        usuario.getProyectos().add(proyecto);
 
     }
 
     @Transactional
     public void quitarIntegrante(Long proyectoId, Long usuarioId) {
         Proyecto proyecto = findProyectoById(proyectoId);
-        boolean removed = proyecto.getIntegrantes().removeIf(integrante -> integrante.getId().equals(usuarioId));
-        if (!removed) {
+        Usuario usuario = findUsuarioById(usuarioId);
+
+        if (proyecto.getIntegrantes().contains(usuario)) {
+            proyecto.getIntegrantes().remove(usuario);
+            usuario.getProyectos().remove(proyecto);
+        } else {
             throw new ResourceNotFoundException("El usuario con ID " + usuarioId + " no es integrante de este proyecto.");
         }
-        proyectoRepository.save(proyecto);
     }
 
     @Transactional
     public void asignarDirector(Long proyectoId, Long directorId) {
         Proyecto proyecto = findProyectoById(proyectoId);
         Usuario director = findUsuarioById(directorId);
+
+        if (proyecto.getDirector() != null) {
+            proyecto.getDirector().getProyectosDirigidos().remove(proyecto);
+        }
         proyecto.setDirector(director);
-        proyectoRepository.save(proyecto);
+        director.getProyectosDirigidos().add(proyecto);
     }
 
     @Transactional
     public void quitarDirector(Long proyectoId) {
         Proyecto proyecto = findProyectoById(proyectoId);
-        if (proyecto.getDirector() == null) {
+        Usuario directorActual = proyecto.getDirector();
+        if (directorActual == null) {
             throw new ResourceNotFoundException("El proyecto con ID " + proyectoId + " no tiene un director asignado.");
         }
         proyecto.setDirector(null);
-        proyectoRepository.save(proyecto);
+        directorActual.getProyectosDirigidos().remove(proyecto);
     }
 
     @Transactional(readOnly = true)
     public List<UsuarioResponseDTO> listarIntegrantesDeProyecto(Long proyectoId) {
         Proyecto proyecto = findProyectoById(proyectoId);
         return proyecto.getIntegrantes().stream()
-                .map(this::convertUsuarioToDto)
+                .map(usuarioMapper::toDto)
                 .collect(Collectors.toList());
     }
 
@@ -138,38 +157,23 @@ public class ProyectoService {
             throw new ResourceNotFoundException("Proyecto no encontrado con ID: " + proyectoId);
         }
         return actividadRepository.findByProyectoId(proyectoId).stream()
-                .map(this::convertActividadToDto)
+                .map(actividadMapper::toDto)
                 .collect(Collectors.toList());
     }
 
     @Transactional
     public ActividadResponseDTO crearYAsociarActividadAProyecto(Long proyectoId, ActividadRequestDTO actividadDto) {
         Proyecto proyecto = findProyectoById(proyectoId);
-        Actividad nuevaActividad = new Actividad();
-        nuevaActividad.setDescripcion(actividadDto.getDescripcion());
-        nuevaActividad.setFecha(actividadDto.getFecha());
-        nuevaActividad.setHoras(actividadDto.getHoras());
+        Actividad nuevaActividad = actividadMapper.toEntity(actividadDto);
         nuevaActividad.setProyecto(proyecto);
+        proyecto.getActividades().add(nuevaActividad);
         Actividad actividadGuardada = actividadRepository.save(nuevaActividad);
-        return convertActividadToDto(actividadGuardada);
-    }
-    
-    @Transactional
-    public void asociarActividadAProyecto(Long proyectoId, Long actividadId) {
-        Proyecto proyecto = findProyectoById(proyectoId);
-        Actividad actividad = actividadRepository.findById(actividadId)
-                .orElseThrow(() -> new ResourceNotFoundException("Actividad no encontrada con ID: " + actividadId));
-
-        if (actividad.getProyecto() != null) {
-            throw new ConflictException("La actividad con ID " + actividadId + " ya está asociada al proyecto con ID " + actividad.getProyecto().getId());
-        }
-
-        actividad.setProyecto(proyecto);
-        actividadRepository.save(actividad);
+        return actividadMapper.toDto(actividadGuardada);
     }
 
     @Transactional
     public void quitarActividadDeProyecto(Long proyectoId, Long actividadId) {
+        Proyecto proyecto = findProyectoById(proyectoId);
         Actividad actividad = actividadRepository.findById(actividadId)
                 .orElseThrow(() -> new ResourceNotFoundException("Actividad no encontrada con ID: " + actividadId));
 
@@ -177,7 +181,7 @@ public class ProyectoService {
             throw new ConflictException("La actividad no pertenece al proyecto especificado.");
         }
         actividad.setProyecto(null);
-        actividadRepository.save(actividad);
+        proyecto.getActividades().remove(actividad);
     }
 
     // --- Métodos privados de ayuda y conversión ---
@@ -190,41 +194,5 @@ public class ProyectoService {
     private Usuario findUsuarioById(Long usuarioId) {
         return usuarioRepository.findById(usuarioId)
                 .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado con ID: " + usuarioId));
-    }
-
-    private ProyectoResponseDTO convertToDto(Proyecto proyecto) {
-        ProyectoResponseDTO dto = new ProyectoResponseDTO();
-        dto.setId(proyecto.getId());
-        dto.setTitulo(proyecto.getTitulo());
-        dto.setDescripcion(proyecto.getDescripcion());
-        dto.setFechaInicio(proyecto.getFechaInicio());
-        dto.setFechaFin(proyecto.getFechaFin());
-        dto.setEstado(proyecto.getEstado());
-        if (proyecto.getDirector() != null) {
-            dto.setDirector(convertUsuarioToDto(proyecto.getDirector()));
-        }
-        if (proyecto.getIntegrantes() != null) {
-            dto.setIntegrantes(proyecto.getIntegrantes().stream().map(this::convertUsuarioToDto).collect(Collectors.toList()));
-        }
-        return dto;
-    }
-
-    private UsuarioResponseDTO convertUsuarioToDto(Usuario usuario) {
-        UsuarioResponseDTO dto = new UsuarioResponseDTO();
-        dto.setId(usuario.getId());
-        dto.setNombre(usuario.getNombre());
-        dto.setApellido(usuario.getApellido());
-        dto.setEmail(usuario.getEmail());
-        dto.setRol(usuario.getRol() != null ? usuario.getRol().getNombre() : null);
-        return dto;
-    }
-
-    private ActividadResponseDTO convertActividadToDto(Actividad actividad) {
-        ActividadResponseDTO dto = new ActividadResponseDTO();
-        dto.setId(actividad.getId());
-        dto.setDescripcion(actividad.getDescripcion());
-        dto.setFecha(actividad.getFecha());
-        dto.setHoras(actividad.getHoras());
-        return dto;
     }
 }

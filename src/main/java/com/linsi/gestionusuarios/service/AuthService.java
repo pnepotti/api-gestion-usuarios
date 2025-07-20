@@ -29,14 +29,14 @@ public class AuthService {
             throw new EmailAlreadyExistsException("Ya existe un usuario con ese email");
         }
 
-        Usuario nuevo = new Usuario();
-        nuevo.setNombre(dto.getNombre());
-        nuevo.setApellido(dto.getApellido());
-        nuevo.setDni(dto.getDni());
-        nuevo.setEmail(dto.getEmail());
-        nuevo.setPassword(passwordEncoder.encode(dto.getPassword()));
-        
-        usuarioRepo.save(nuevo);
+        Usuario nuevoUsuario = Usuario.builder()
+                .nombre(dto.getNombre())
+                .apellido(dto.getApellido())
+                .dni(dto.getDni())
+                .email(dto.getEmail())
+                .password(passwordEncoder.encode(dto.getPassword()))
+                .build();
+        usuarioRepo.save(nuevoUsuario);
     }
 
     public JwtResponse login(LoginDTO dto) {

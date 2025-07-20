@@ -4,7 +4,14 @@ import java.util.List;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import com.linsi.gestionusuarios.dto.ActividadRequestDTO;
 import com.linsi.gestionusuarios.dto.ActividadResponseDTO;
 import com.linsi.gestionusuarios.dto.ProyectoRequestDTO;
@@ -114,15 +121,6 @@ public class ProyectoController {
             @Valid @RequestBody ActividadRequestDTO actividadDto) {
         ActividadResponseDTO actividadGuardada = proyectoService.crearYAsociarActividadAProyecto(id, actividadDto);
         return ResponseEntity.status(HttpStatus.CREATED).body(actividadGuardada);
-    }
-
-    @PreAuthorize("hasRole('ADMINISTRADOR') or @proyectoSecurity.esDirector(#id, authentication.principal.id)")
-    @PutMapping("/{id}/actividades/{actividadId}")
-    public ResponseEntity<Void> asociarActividadAProyecto(
-            @PathVariable Long id,
-            @PathVariable Long actividadId) {
-        proyectoService.asociarActividadAProyecto(id, actividadId);
-        return ResponseEntity.noContent().build();
     }
 
     @PreAuthorize("hasRole('ADMINISTRADOR') or @proyectoSecurity.esDirector(#id, authentication.principal.id)")

@@ -1,7 +1,18 @@
 package com.linsi.gestionusuarios.model;
 
-import jakarta.persistence.*;
-import lombok.*;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Column;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.FetchType;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.Builder;
+import lombok.NoArgsConstructor;
+import lombok.AllArgsConstructor;
+import lombok.ToString;
 
 import java.util.HashSet;
 import java.util.Objects;
@@ -26,6 +37,7 @@ public class Rol {
 
     @OneToMany(mappedBy = "rol", fetch = FetchType.LAZY)
     @JsonIgnore
+    @Builder.Default
     private Set<Usuario> usuarios = new HashSet<>(); // Inicializamos la colección
 
     @Override
