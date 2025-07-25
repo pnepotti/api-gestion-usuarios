@@ -1,17 +1,18 @@
 package com.linsi.gestionusuarios.service;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.linsi.gestionusuarios.dto.ActividadRequestDTO;
 import com.linsi.gestionusuarios.dto.ActividadResponseDTO;
 import com.linsi.gestionusuarios.exception.ResourceNotFoundException;
 import com.linsi.gestionusuarios.mapper.ActividadMapper;
 import com.linsi.gestionusuarios.model.Actividad;
 import com.linsi.gestionusuarios.repository.ActividadRepository;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-import java.util.stream.Collectors;
+import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
@@ -21,10 +22,9 @@ public class ActividadService {
     private final ActividadMapper actividadMapper;
 
     @Transactional(readOnly = true)
-    public List<ActividadResponseDTO> listarActividades() {
-        return actividadRepository.findAll().stream()
-                .map(actividadMapper::toDto)
-                .collect(Collectors.toList());
+    public Page<ActividadResponseDTO> listarActividades(Pageable pageable) {
+        Page<Actividad> actividades = actividadRepository.findAll(pageable);
+        return actividades.map(actividadMapper::toDto);
     }
 
     @Transactional(readOnly = true)

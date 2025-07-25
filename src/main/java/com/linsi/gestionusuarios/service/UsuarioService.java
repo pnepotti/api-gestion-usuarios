@@ -3,6 +3,9 @@ package com.linsi.gestionusuarios.service;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -40,18 +43,19 @@ public class UsuarioService {
     private final ProyectoMapper proyectoMapper;
 
     @Transactional(readOnly = true)
-    public List<UsuarioResponseDTO> getUsuarios(String dni, String rol, String nombre, String apellido) {
-        List<Usuario> usuarios;
+    public Page<UsuarioResponseDTO> getUsuarios(String dni, String rol, String nombre, String apellido, Pageable pageable) {
+        Page<Usuario> usuariosPage;
         if (dni != null && !dni.isEmpty()) {
-            usuarios = usuarioRepository.findByDni(dni).map(List::of).orElse(List.of());
+            List<Usuario> resultList = usuarioRepository.findByDni(dni).map(List::of).orElse(List.of());
+            usuariosPage = new PageImpl<>(resultList, pageable, resultList.size());
         } else if (rol != null && !rol.isEmpty()) {
-            usuarios = usuarioRepository.findByRolNombre(rol);
+            usuariosPage = usuarioRepository.findByRolNombre(rol, pageable);
         } else if (nombre != null && !nombre.isEmpty() && apellido != null && !apellido.isEmpty()) {
-            usuarios = usuarioRepository.findByNombreContainingIgnoreCaseAndApellidoContainingIgnoreCase(nombre, apellido);
+            usuariosPage = usuarioRepository.findByNombreContainingIgnoreCaseAndApellidoContainingIgnoreCase(nombre, apellido, pageable);
         } else {
-            usuarios = usuarioRepository.findAll();
+            usuariosPage = usuarioRepository.findAll(pageable);
         }
-        return usuarios.stream().map(usuarioMapper::toDto).collect(Collectors.toList());
+        return usuariosPage.map(usuarioMapper::toDto);
     }
 
     @Transactional

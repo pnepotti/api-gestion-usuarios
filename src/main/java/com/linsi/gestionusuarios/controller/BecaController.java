@@ -2,6 +2,8 @@ package com.linsi.gestionusuarios.controller;
 
 import java.util.List;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -30,8 +32,8 @@ public class BecaController {
 
     @PreAuthorize("hasRole('ADMINISTRADOR') or hasRole('DOCENTE')")
     @GetMapping
-    public ResponseEntity<List<BecaResponseDTO>> listarBecas() {
-        return ResponseEntity.ok(becaService.listarBecas());
+    public ResponseEntity<Page<BecaResponseDTO>> listarBecas(Pageable pageable) {
+        return ResponseEntity.ok(becaService.listarBecas(pageable));
     }
 
     @PreAuthorize("hasRole('ADMINISTRADOR') or hasRole('DOCENTE')")

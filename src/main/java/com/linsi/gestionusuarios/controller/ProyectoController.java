@@ -1,6 +1,9 @@
 package com.linsi.gestionusuarios.controller;
 
 import java.util.List;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -33,8 +36,8 @@ public class ProyectoController {
 
     @PreAuthorize("hasRole('ADMINISTRADOR')")
     @GetMapping
-    public ResponseEntity<List<ProyectoResponseDTO>> listarProyectos() {
-        return ResponseEntity.ok(proyectoService.listarProyectos());
+    public ResponseEntity<Page<ProyectoResponseDTO>> listarProyectos(Pageable pageable) {
+        return ResponseEntity.ok(proyectoService.listarProyectos(pageable));
     }
 
     @PreAuthorize("hasRole('ADMINISTRADOR') or @proyectoSecurity.esDirectorOIntegrante(#id, authentication.principal.id)")
@@ -102,16 +105,16 @@ public class ProyectoController {
 
     @PreAuthorize("hasRole('ADMINISTRADOR') or @proyectoSecurity.esDirectorOIntegrante(#id, authentication.principal.id)")
     @GetMapping("/{id}/integrantes")
-    public ResponseEntity<List<UsuarioResponseDTO>> listarIntegrantesDeProyecto(@PathVariable Long id) {
-        return ResponseEntity.ok(proyectoService.listarIntegrantesDeProyecto(id));
+    public ResponseEntity<Page<UsuarioResponseDTO>> listarIntegrantesDeProyecto(@PathVariable Long id, Pageable pageable) {
+        return ResponseEntity.ok(proyectoService.listarIntegrantesDeProyecto(id, pageable));
     }
     
     // ACTIVIDADES
 
     @PreAuthorize("hasRole('ADMINISTRADOR') or @proyectoSecurity.esDirectorOIntegrante(#id, authentication.principal.id)")
     @GetMapping("/{id}/actividades")
-    public ResponseEntity<List<ActividadResponseDTO>> listarActividadesDeProyecto(@PathVariable Long id) {
-        return ResponseEntity.ok(proyectoService.listarActividadesDeProyecto(id));
+    public ResponseEntity<Page<ActividadResponseDTO>> listarActividadesDeProyecto(@PathVariable Long id, Pageable pageable) {
+        return ResponseEntity.ok(proyectoService.listarActividadesDeProyecto(id, pageable));
     }
 
     @PreAuthorize("hasRole('ADMINISTRADOR') or @proyectoSecurity.esDirector(#id, authentication.principal.id)")

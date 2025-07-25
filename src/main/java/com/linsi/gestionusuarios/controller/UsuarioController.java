@@ -2,6 +2,8 @@ package com.linsi.gestionusuarios.controller;
 
 import java.util.List;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -40,12 +42,13 @@ public class UsuarioController {
 
     @PreAuthorize("hasRole('ADMINISTRADOR') or hasRole('DOCENTE')")
     @GetMapping
-    public ResponseEntity<List<UsuarioResponseDTO>> listarUsuarios(
+    public ResponseEntity<Page<UsuarioResponseDTO>> listarUsuarios(
             @RequestParam(required = false) String dni,
             @RequestParam(required = false) String rol,
             @RequestParam(required = false) String nombre,
-            @RequestParam(required = false) String apellido) {
-        return ResponseEntity.ok(usuarioService.getUsuarios(dni, rol, nombre, apellido));
+            @RequestParam(required = false) String apellido,
+            Pageable pageable) {
+        return ResponseEntity.ok(usuarioService.getUsuarios(dni, rol, nombre, apellido, pageable));
     }
 
     @PreAuthorize("hasRole('ADMINISTRADOR') or #id == authentication.principal.id")

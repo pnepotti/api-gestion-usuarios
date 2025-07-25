@@ -1,5 +1,8 @@
 package com.linsi.gestionusuarios.repository;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -16,4 +19,7 @@ public interface ProyectoRepository extends JpaRepository<Proyecto, Long> {
     @Query("SELECT COUNT(p) > 0 FROM Proyecto p LEFT JOIN p.integrantes i WHERE p.id = :proyectoId AND (p.director.id = :usuarioId OR i.id = :usuarioId)")
     boolean esDirectorOIntegrante(@Param("proyectoId") Long proyectoId, @Param("usuarioId") Long usuarioId);
 
+    @Override
+    @EntityGraph(attributePaths = {"director", "director.rol"})
+    Page<Proyecto> findAll(Pageable pageable);
 }

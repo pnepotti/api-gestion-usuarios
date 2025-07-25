@@ -2,6 +2,8 @@ package com.linsi.gestionusuarios.controller;
 
 import java.util.List;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -33,8 +35,8 @@ public class MateriaController {
 
     @PreAuthorize("hasRole('ADMINISTRADOR') or hasRole('DOCENTE')")
     @GetMapping
-    public ResponseEntity<List<MateriaResponseDTO>> listarMaterias() {
-        return ResponseEntity.ok(materiaService.listarMaterias());
+    public ResponseEntity<Page<MateriaResponseDTO>> listarMaterias(Pageable pageable) {
+        return ResponseEntity.ok(materiaService.listarMaterias(pageable));
     }
 
     @PreAuthorize("hasRole('ADMINISTRADOR') or hasRole('DOCENTE')")
@@ -86,8 +88,8 @@ public class MateriaController {
 
     @PreAuthorize("hasRole('ADMINISTRADOR') or hasRole('DOCENTE')")
     @GetMapping("/{id}/integrantes")
-    public ResponseEntity<List<UsuarioResponseDTO>> listarIntegrantesDeMateria(@PathVariable Long id) {
-        return ResponseEntity.ok(materiaService.listarIntegrantesDeMateria(id));
+    public ResponseEntity<Page<UsuarioResponseDTO>> listarIntegrantesDeMateria(@PathVariable Long id, Pageable pageable) {
+        return ResponseEntity.ok(materiaService.listarIntegrantesDeMateria(id, pageable));
     }
 
 }

@@ -12,6 +12,9 @@ import com.linsi.gestionusuarios.model.Usuario;
 import com.linsi.gestionusuarios.repository.MateriaRepository;
 import com.linsi.gestionusuarios.repository.UsuarioRepository;
 import lombok.RequiredArgsConstructor;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -28,10 +31,9 @@ public class MateriaService {
     private final UsuarioMapper usuarioMapper;
 
     @Transactional(readOnly = true)
-    public List<MateriaResponseDTO> listarMaterias() {
-        return materiaRepository.findAll().stream()
-                .map(materiaMapper::toDto)
-                .collect(Collectors.toList());
+    public Page<MateriaResponseDTO> listarMaterias(Pageable pageable) {
+        Page<Materia> materias = materiaRepository.findAll(pageable);
+        return materias.map(materiaMapper::toDto);
     }
 
     @Transactional(readOnly = true)
@@ -96,11 +98,12 @@ public class MateriaService {
     }
 
     @Transactional(readOnly = true)
-    public List<UsuarioResponseDTO> listarIntegrantesDeMateria(Long materiaId) {
-        Materia materia = findMateriaById(materiaId);
-        return materia.getIntegrantes().stream()
-                .map(usuarioMapper::toDto)
-                .collect(Collectors.toList());
+    public Page<UsuarioResponseDTO> listarIntegrantesDeMateria(Long materiaId, Pageable pageable) {
+        if (!materiaRepository.existsById(materiaId)) {
+            throw new ResourceNotFoundException("Materia no encontrada con ID: " + materiaId);
+        }
+        Page<Usuario> integrantes = usuarioRepository.findByMaterias_Id(materiaId, pageable);
+        return integrantes.map(usuarioMapper::toDto);
     }
 
     private Materia findMateriaById(Long materiaId) {

@@ -3,6 +3,8 @@ package com.linsi.gestionusuarios.service;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -39,10 +41,9 @@ public class ProyectoService {
      // --- Métodos de Proyectos ---
 
     @Transactional(readOnly = true)
-    public List<ProyectoResponseDTO> listarProyectos() {
-        return proyectoRepository.findAll().stream()
-                .map(proyectoMapper::toDto)
-                .collect(Collectors.toList());
+    public Page<ProyectoResponseDTO> listarProyectos(Pageable pageable) {
+        Page<Proyecto> proyectos = proyectoRepository.findAll(pageable);
+        return proyectos.map(proyectoMapper::toDto);
     }
 
     @Transactional(readOnly = true)
@@ -142,23 +143,22 @@ public class ProyectoService {
     }
 
     @Transactional(readOnly = true)
-    public List<UsuarioResponseDTO> listarIntegrantesDeProyecto(Long proyectoId) {
-        Proyecto proyecto = findProyectoById(proyectoId);
-        return proyecto.getIntegrantes().stream()
-                .map(usuarioMapper::toDto)
-                .collect(Collectors.toList());
+    public Page<UsuarioResponseDTO> listarIntegrantesDeProyecto(Long proyectoId, Pageable pageable) {
+        if (!proyectoRepository.existsById(proyectoId)) {
+            throw new ResourceNotFoundException("Proyecto no encontrado con ID: " + proyectoId);
+        }
+        Page<Usuario> integrantes = usuarioRepository.findByProyectos_Id(proyectoId, pageable);
+        return integrantes.map(usuarioMapper::toDto);
     }
 
     // --- Métodos de Actividades ---
 
     @Transactional(readOnly = true)
-    public List<ActividadResponseDTO> listarActividadesDeProyecto(Long proyectoId) {
+    public Page<ActividadResponseDTO> listarActividadesDeProyecto(Long proyectoId, Pageable pageable) {
         if (!proyectoRepository.existsById(proyectoId)) {
             throw new ResourceNotFoundException("Proyecto no encontrado con ID: " + proyectoId);
         }
-        return actividadRepository.findByProyectoId(proyectoId).stream()
-                .map(actividadMapper::toDto)
-                .collect(Collectors.toList());
+        return actividadRepository.findByProyectoId(proyectoId, pageable).map(actividadMapper::toDto);
     }
 
     @Transactional
