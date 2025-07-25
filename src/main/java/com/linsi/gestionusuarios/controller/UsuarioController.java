@@ -48,6 +48,13 @@ public class UsuarioController {
         return ResponseEntity.ok(usuarioService.getUsuarios(dni, rol, nombre, apellido));
     }
 
+    @PreAuthorize("hasRole('ADMINISTRADOR') or #id == authentication.principal.id")
+    @GetMapping("/{id}")
+    public ResponseEntity<UsuarioResponseDTO> obtenerUsuarioPorId(@PathVariable Long id) {
+        UsuarioResponseDTO usuario = usuarioService.getUsuarioDto(id);
+        return ResponseEntity.ok(usuario);
+    }
+
     @PreAuthorize("hasRole('ADMINISTRADOR')")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> eliminarUsuario(@PathVariable Long id) {
