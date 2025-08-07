@@ -68,6 +68,13 @@ Asegúrate de tener instalado el siguiente software:
     MYSQL_PASSWORD=
     MYSQL_ROOT_PASSWORD=
 
+    # === VARIABLES PARA EL USUARIO ADMIN DE LA APLICACIÓN ===
+    ADMIN_NOMBRE=
+    ADMIN_APELLIDO=
+    ADMIN_PASSWORD=
+    ADMIN_EMAIL=
+    ADMIN_DNI=
+
     # URL de la base de datos para Spring (usada por el contenedor 'app')
     SPRING_DATASOURCE_URL=
     SPRING_DATASOURCE_USERNAME=

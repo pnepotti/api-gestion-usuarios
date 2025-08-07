@@ -20,7 +20,7 @@ public class ActividadSecurityService {
     public boolean puedeModificar(Long actividadId, Authentication authentication) {
         Optional<Actividad> actividadOpt = actividadRepository.findById(actividadId);
         if (actividadOpt.isEmpty()) {
-            return true; // El controlador se encargará del 404, aquí permitimos que continúe.
+            return true;
         }
         Actividad actividad = actividadOpt.get();
 
@@ -38,7 +38,6 @@ public class ActividadSecurityService {
     }
 
     private boolean hasRole(Authentication authentication, String roleName) {
-        // El prefijo "ROLE_" es añadido por Spring Security automáticamente.
         return authentication.getAuthorities().stream()
                 .anyMatch(a -> a.getAuthority().equals("ROLE_" + roleName));
     }

@@ -1,10 +1,11 @@
 package com.linsi.gestionusuarios.config;
 
-import com.linsi.gestionusuarios.model.Rol;
-import com.linsi.gestionusuarios.repository.RolRepository;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+
+import com.linsi.gestionusuarios.model.Rol;
+import com.linsi.gestionusuarios.repository.RolRepository;
 
 @Configuration
 public class DataInitializer {

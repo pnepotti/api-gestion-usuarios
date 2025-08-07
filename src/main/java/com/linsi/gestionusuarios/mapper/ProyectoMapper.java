@@ -1,12 +1,14 @@
 package com.linsi.gestionusuarios.mapper;
 
+import java.util.stream.Collectors;
+
+import org.springframework.stereotype.Component;
+
 import com.linsi.gestionusuarios.dto.ProyectoRequestDTO;
 import com.linsi.gestionusuarios.dto.ProyectoResponseDTO;
 import com.linsi.gestionusuarios.model.Proyecto;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Component;
 
-import java.util.stream.Collectors;
+import lombok.RequiredArgsConstructor;
 
 @Component
 @RequiredArgsConstructor

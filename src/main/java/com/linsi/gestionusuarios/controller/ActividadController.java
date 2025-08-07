@@ -52,7 +52,6 @@ public class ActividadController {
         return ResponseEntity.ok(actualizada);
     }
 
-     //Permisos para Administrador, docente (si la actividad no esta asociada a un proyecto) o, caso contrario, director del proyecto
     @PreAuthorize("@actividadSecurity.puedeModificar(#id, authentication)")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> eliminarActividad(

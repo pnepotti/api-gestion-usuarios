@@ -2,7 +2,9 @@ package com.linsi.gestionusuarios.service;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
 import com.linsi.gestionusuarios.repository.ProyectoRepository;
+
 import lombok.RequiredArgsConstructor;
 
 @Service("proyectoSecurity")

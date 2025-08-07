@@ -35,8 +35,6 @@ public class ProyectoService {
     private final UsuarioMapper usuarioMapper;
     private final ActividadMapper actividadMapper;
 
-     // --- Métodos de Proyectos ---
-
     @Transactional(readOnly = true)
     public Page<ProyectoResponseDTO> listarProyectos(Pageable pageable) {
         Page<Proyecto> proyectos = proyectoRepository.findAll(pageable);
@@ -86,8 +84,6 @@ public class ProyectoService {
         proyecto.getActividades().clear();
         proyectoRepository.delete(proyecto);
     }
-
-    // --- Métodos de Integrantes y Director ---
 
     @Transactional
     public void agregarIntegrante(Long proyectoId, Long usuarioId) {
@@ -181,7 +177,7 @@ public class ProyectoService {
         proyecto.getActividades().remove(actividad);
     }
 
-    // --- Métodos privados de ayuda y conversión ---
+    // --- Métodos privados de ayuda ---
 
     private Proyecto findProyectoById(Long proyectoId) {
         return proyectoRepository.findById(proyectoId)

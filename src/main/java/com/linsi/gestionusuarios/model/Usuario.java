@@ -6,28 +6,29 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Column;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToMany;
-import jakarta.persistence.JoinTable;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.Table;
-import jakarta.persistence.CascadeType;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.Builder;
-import lombok.NoArgsConstructor;
-import lombok.AllArgsConstructor;
-import lombok.ToString;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToMany;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 
 @Entity
 @Getter
@@ -52,6 +53,12 @@ public class Usuario implements UserDetails {
     @Column(unique = true, nullable = false)
     private String dni;
 
+    @Column(nullable = true)
+    private String telefono;
+
+    @Column(nullable = true)
+    private String direccion;
+
     @Column(unique = true, nullable = true)
     private String legajo;
 
@@ -63,7 +70,7 @@ public class Usuario implements UserDetails {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "rol_id")
-    private Rol rol; // Puede ser null al crear el usuario
+    private Rol rol; 
 
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
@@ -74,7 +81,6 @@ public class Usuario implements UserDetails {
     @Builder.Default
     private Set<Materia> materias = new HashSet<>();
 
-    // Si un usuario es eliminado, sus becas también
     @OneToMany(mappedBy = "usuario", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
     private Set<Beca> becas = new HashSet<>();
@@ -92,13 +98,11 @@ public class Usuario implements UserDetails {
         if (this.rol != null && this.rol.getNombre() != null) {
             return List.of(new SimpleGrantedAuthority("ROLE_" + this.rol.getNombre()));
         }
-        // Devuelve una lista vacía si no hay rol, para evitar NullPointerException.
         return List.of();
     }
 
     @Override
     public String getUsername() {
-        // El "username" para Spring Security será el email.
         return this.email;
     }
 

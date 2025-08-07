@@ -26,6 +26,18 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
         return new ResponseEntity<>(errorResponse, HttpStatus.CONFLICT);
     }
 
+    @ExceptionHandler(DniAlreadyExistsException.class)
+    protected ResponseEntity<MensajeResponseDTO> handleDniExists(DniAlreadyExistsException ex) {
+        MensajeResponseDTO errorResponse = new MensajeResponseDTO(ex.getMessage());
+        return new ResponseEntity<>(errorResponse, HttpStatus.CONFLICT);
+    }
+
+    @ExceptionHandler(LegajoAlreadyExistsException.class)
+    protected ResponseEntity<MensajeResponseDTO> handleLegajoExists(LegajoAlreadyExistsException ex) {
+        MensajeResponseDTO errorResponse = new MensajeResponseDTO(ex.getMessage());
+        return new ResponseEntity<>(errorResponse, HttpStatus.CONFLICT);
+    }
+
     @ExceptionHandler(ConflictException.class)
     protected ResponseEntity<MensajeResponseDTO> handleGenericConflict(ConflictException ex) {
         MensajeResponseDTO errorResponse = new MensajeResponseDTO(ex.getMessage());

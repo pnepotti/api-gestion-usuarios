@@ -31,5 +31,5 @@ public class BecaRequestDTO {
 
     @NotNull(message = "La duración no puede ser nula")
     @Positive(message = "La duración debe ser un número positivo")
-    private Integer duracion; // en meses
+    private Integer duracion;
 }

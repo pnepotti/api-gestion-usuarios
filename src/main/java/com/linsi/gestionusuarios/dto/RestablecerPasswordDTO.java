@@ -11,6 +11,7 @@ import lombok.NoArgsConstructor;
 public class RestablecerPasswordDTO {
     @NotBlank(message = "El token no puede estar vacío")
     private String token;
+    
     @NotBlank(message = "La nueva contraseña no puede estar vacía")
     private String nuevaPassword;
 }

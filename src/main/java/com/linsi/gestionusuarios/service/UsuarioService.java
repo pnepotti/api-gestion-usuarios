@@ -19,6 +19,9 @@ import com.linsi.gestionusuarios.dto.MateriaResponseDTO;
 import com.linsi.gestionusuarios.dto.ProyectoResponseDTO;
 import com.linsi.gestionusuarios.dto.UsuarioResponseDTO;
 import com.linsi.gestionusuarios.dto.UsuarioUpdateDTO;
+import com.linsi.gestionusuarios.exception.DniAlreadyExistsException;
+import com.linsi.gestionusuarios.exception.EmailAlreadyExistsException;
+import com.linsi.gestionusuarios.exception.LegajoAlreadyExistsException;
 import com.linsi.gestionusuarios.exception.ResourceNotFoundException;
 import com.linsi.gestionusuarios.mapper.MateriaMapper;
 import com.linsi.gestionusuarios.mapper.ProyectoMapper;
@@ -77,9 +80,23 @@ public class UsuarioService {
         Usuario usuario = usuarioRepository.findById(usuarioId)
                 .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado con ID: " + usuarioId));
         
+        if (usuarioRepository.existsByDniAndIdNot(dto.getDni(), usuarioId)) {
+            throw new DniAlreadyExistsException("El DNI " + dto.getDni() + " ya está registrado por otro usuario.");
+        }
+
+        if (usuarioRepository.existsByEmailAndIdNot(dto.getEmail(), usuarioId)) {
+            throw new EmailAlreadyExistsException("El email " + dto.getEmail() + " ya está registrado por otro usuario.");
+        }
+
+        if (dto.getLegajo() != null && usuarioRepository.existsByLegajo(dto.getLegajo())) {
+            throw new LegajoAlreadyExistsException("El legajo " + dto.getLegajo() + " ya está registrado por otro usuario.");
+        }
+        
         usuario.setNombre(dto.getNombre());
         usuario.setApellido(dto.getApellido());
         usuario.setDni(dto.getDni());
+        usuario.setTelefono(dto.getTelefono() != null ? dto.getTelefono() : null);
+        usuario.setDireccion(dto.getDireccion() != null ? dto.getDireccion() : null);
         usuario.setLegajo(dto.getLegajo() != null ? dto.getLegajo() : null);
         usuario.setEmail(dto.getEmail());
         Usuario updatedUsuario = usuarioRepository.save(usuario);
@@ -163,7 +180,6 @@ public class UsuarioService {
     }
 
     private void desvincularDeMaterias(Usuario usuario) {
-        // Se crea una copia del Set para iterar y evitar ConcurrentModificationException
         new java.util.HashSet<>(usuario.getMaterias()).forEach(materia -> 
             materia.getIntegrantes().remove(usuario)
         );

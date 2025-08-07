@@ -27,7 +27,7 @@ public class RolService {
     public RolResponseDTO crearRol(RolRequestDTO rolDto) {
         if (rolRepository.existsByNombreIgnoreCase(rolDto.getNombre())) {
             throw new ConflictException("Ya existe un rol con el nombre: " + rolDto.getNombre());
-        }
+        }        
         Rol nuevoRol = rolMapper.toEntity(rolDto);
         Rol rolGuardado = rolRepository.save(nuevoRol);
         return rolMapper.toDto(rolGuardado);

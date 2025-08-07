@@ -4,18 +4,18 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Objects;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.Column;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
-import lombok.Getter;
-import lombok.Setter;
+import jakarta.persistence.ManyToOne;
 import lombok.AllArgsConstructor;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.ToString;
 
 @Entity
@@ -44,7 +44,7 @@ public class Beca {
     private LocalDate fechaFin;
 
     @Column(nullable = false)
-    private Integer duracion; // en meses
+    private Integer duracion;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "usuario_id", nullable = false)
@@ -55,7 +55,6 @@ public class Beca {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Beca beca = (Beca) o;
-        // La igualdad se basa en el ID solo para entidades ya persistidas.
         return id != null && Objects.equals(id, beca.id);
     }
 
@@ -63,5 +62,4 @@ public class Beca {
     public int hashCode() {
         return getClass().hashCode();
     }
-
 }

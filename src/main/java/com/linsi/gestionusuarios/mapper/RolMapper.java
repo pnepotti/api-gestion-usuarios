@@ -1,9 +1,10 @@
 package com.linsi.gestionusuarios.mapper;
 
+import org.springframework.stereotype.Component;
+
 import com.linsi.gestionusuarios.dto.RolRequestDTO;
 import com.linsi.gestionusuarios.dto.RolResponseDTO;
 import com.linsi.gestionusuarios.model.Rol;
-import org.springframework.stereotype.Component;
 
 @Component
 public class RolMapper {

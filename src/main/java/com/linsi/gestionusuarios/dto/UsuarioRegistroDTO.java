@@ -22,6 +22,10 @@ public class UsuarioRegistroDTO {
 
     private String legajo;
 
+    private String telefono;
+    
+    private String direccion;
+
     @Email(message = "El email debe ser válido")
     @NotBlank(message = "El email no puede estar vacío")
     private String email;

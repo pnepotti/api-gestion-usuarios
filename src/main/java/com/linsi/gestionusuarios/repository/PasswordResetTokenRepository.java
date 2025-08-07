@@ -1,9 +1,10 @@
 package com.linsi.gestionusuarios.repository;
 
-import com.linsi.gestionusuarios.model.PasswordResetToken;
+import java.util.Optional;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import java.util.Optional;
+import com.linsi.gestionusuarios.model.PasswordResetToken;
 
 public interface PasswordResetTokenRepository extends JpaRepository<PasswordResetToken, Long> {
     Optional<PasswordResetToken> findByToken(String token);

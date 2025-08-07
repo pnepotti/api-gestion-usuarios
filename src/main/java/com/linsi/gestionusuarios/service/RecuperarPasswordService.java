@@ -1,24 +1,24 @@
 package com.linsi.gestionusuarios.service;
 
+import java.time.LocalDateTime;
+import java.util.Optional;
+import java.util.UUID;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.scheduling.annotation.Async;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
 
 import com.linsi.gestionusuarios.exception.InvalidTokenException;
 import com.linsi.gestionusuarios.model.PasswordResetToken;
 import com.linsi.gestionusuarios.model.Usuario;
 import com.linsi.gestionusuarios.repository.PasswordResetTokenRepository;
 import com.linsi.gestionusuarios.repository.UsuarioRepository;
+
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.stereotype.Service;
-
-import java.time.LocalDateTime;
-import java.util.Optional;
-import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -49,19 +49,16 @@ public class RecuperarPasswordService {
         }
         Usuario usuario = usuarioOpt.get();
 
-        // Elimina tokens anteriores
         tokenRepo.deleteByUsuarioId(usuario.getId());
 
-        // Genera token y guarda
         String token = UUID.randomUUID().toString();
         PasswordResetToken resetToken = new PasswordResetToken(
                 null,
                 token,
                 usuario,
-                LocalDateTime.now().plusHours(1)); // Token válido por 1 hora
+                LocalDateTime.now().plusHours(1)); 
         tokenRepo.save(resetToken);
 
-        // Enlace de recuperación (ajustar la URL según el frontend)
         String enlace = frontendUrl + "/restablecer-password?token=" + token;
         enviarEmail(usuario.getEmail(), enlace);
     }
@@ -72,7 +69,7 @@ public class RecuperarPasswordService {
                 .orElseThrow(() -> new InvalidTokenException("Token inválido o no encontrado."));
 
         if (resetToken.getExpiracion().isBefore(LocalDateTime.now())) {
-            tokenRepo.delete(resetToken); // Limpiar token expirado
+            tokenRepo.delete(resetToken); 
             throw new InvalidTokenException("El token ha expirado.");
         }
 
@@ -80,7 +77,6 @@ public class RecuperarPasswordService {
         usuario.setPassword(passwordEncoder.encode(nuevaPassword));
         usuarioRepo.save(usuario);
 
-        // Elimina el token usado
         tokenRepo.delete(resetToken);
     }
 }

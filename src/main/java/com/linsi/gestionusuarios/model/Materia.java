@@ -4,17 +4,17 @@ import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.Column;
 import jakarta.persistence.ManyToMany;
-import jakarta.persistence.FetchType;
-import lombok.Getter;
-import lombok.Setter;
 import lombok.AllArgsConstructor;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.ToString;
 
 @Entity
@@ -47,13 +47,11 @@ public class Materia {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Materia materia = (Materia) o;
-        // La igualdad se basa en la clave de negocio 'codigo', que es única.
         return Objects.equals(codigo, materia.codigo);
     }
 
     @Override
     public int hashCode() {
-        // El hash se basa en la clave de negocio 'codigo'.
         return Objects.hash(codigo);
     }
 }

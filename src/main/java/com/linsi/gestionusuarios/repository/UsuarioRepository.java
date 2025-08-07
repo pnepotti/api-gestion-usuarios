@@ -25,6 +25,11 @@ public interface UsuarioRepository extends JpaRepository<Usuario, Long> {
     Page<Usuario> findByNombreContainingIgnoreCaseAndApellidoContainingIgnoreCase(String nombre, String apellido, Pageable pageable);
     
     boolean existsByRolId(Long rolId);
+    boolean existsByLegajo(String legajo);
+    boolean existsByDni(String dni);
+    boolean existsByEmail(String email);    
+    boolean existsByDniAndIdNot(String dni, Long id);
+    boolean existsByEmailAndIdNot(String email, Long id);
 
     @Override
     @EntityGraph(attributePaths = "rol")

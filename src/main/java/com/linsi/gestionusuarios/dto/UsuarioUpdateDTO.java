@@ -20,7 +20,11 @@ public class UsuarioUpdateDTO {
     private String dni;
 
     private String legajo;
-    
+
+    private String telefono;
+
+    private String direccion;
+
     @Email(message = "El email debe ser válido.")
     @NotBlank(message = "El email es obligatorio.")
     private String email;

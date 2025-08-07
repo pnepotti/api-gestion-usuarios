@@ -71,7 +71,6 @@ public class BecaService {
     public void eliminarBeca(Long becaId) {
         Beca beca = findBecaById(becaId);
 
-        // Si la beca está asociada a un usuario, la desvinculamos primero para mantener la consistencia.
         if (beca.getUsuario() != null) {
             beca.getUsuario().getBecas().remove(beca);
         }
