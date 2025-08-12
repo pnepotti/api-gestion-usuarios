@@ -1,6 +1,6 @@
 # API de Gestión de Usuarios - LINSI
 
-API RESTful construida con **Spring Boot** para el sistema del laboratorio LINSI de la UTN FRLP. Provee gestión de entidades (usuarios, proyectos, becas, materias, actividades, roles), autenticación segura con JWT, roles (`ADMINISTRADOR`, `DOCENTE`, `BECARIO`), protección de endpoints y un entorno de despliegue contenerizado con Docker.
+API RESTful construida con **Spring Boot** para el sistema del laboratorio LINSI de la UTN FRLP. Provee gestión de entidades (usuarios, proyectos, becas, materias, actividades, áreas de investigación), autenticación segura con JWT, roles (`ADMINISTRADOR`, `DOCENTE`, `BECARIO`), protección de endpoints y un entorno de despliegue contenerizado con Docker.
 
 ---
 
@@ -68,7 +68,7 @@ Asegúrate de tener instalado el siguiente software:
     MYSQL_PASSWORD=
     MYSQL_ROOT_PASSWORD=
 
-    # === VARIABLES PARA EL USUARIO ADMIN DE LA APLICACIÓN ===
+    # VARIABLES PARA EL USUARIO ADMIN DE LA APLICACIÓN
     ADMIN_NOMBRE=
     ADMIN_APELLIDO=
     ADMIN_PASSWORD=
@@ -104,9 +104,8 @@ Este método levanta toda la infraestructura (API, Base de Datos, Nginx, phpMyAd
     ```
 
 3.  **Acceder a los servicios:**
-    *   **API:** `http://localhost` (gracias a Nginx)
-    *   **Documentación Swagger:** `http://localhost/swagger-ui.html`
-    *   **phpMyAdmin:** `http://localhost:8081`
+    *   **API:** `https://localhost` (gracias a Nginx)
+    *   **Documentación Swagger:** `https://localhost/swagger-ui.html`
 
 ### Ejecución Local (Alternativa para Desarrollo)
 
@@ -132,65 +131,73 @@ A continuación se detallan los principales grupos de endpoints de la API.
 
 ### 🔐 Autenticación
 
-| Método | Endpoint         | Descripción                       | Acceso  |
-| :----- | :--------------- | :-------------------------------- | :------ |
-| `POST` | `/auth/register` | Registra un nuevo usuario.        | Público |
-| `POST` | `/auth/login`    | Inicia sesión y obtiene un token. | Público |
+| Método | Endpoint                | Descripción                       | Acceso  |
+| :----- | :---------------------- | :-------------------------------- | :------ |
+| `POST` | `/api/v1/auth/register` | Registra un nuevo usuario.        | Público |
+| `POST` | `/api/v1/auth/login`    | Inicia sesión y obtiene un token. | Público |
 
 ### 👥 Gestión de Usuarios
 
-| Método   | Endpoint             | Descripción                               | Acceso                                |
-| :------- | :------------------- | :---------------------------------------- | :------------------------------------ |
-| `GET`    | `/api/usuarios`      | Lista todos los usuarios.                 | `ADMINISTRADOR`                       |
-| `GET`    | `/api/usuarios/me`   | Obtiene los datos del perfil propio.      | `ADMINISTRADOR`, `DOCENTE`, `BECARIO` |
-| `PUT`    | `/api/usuarios/{id}` | Modifica un usuario.                      | `ADMINISTRADOR` o el propio usuario   |
-| `DELETE` | `/api/usuarios/{id}` | Elimina un usuario.                       | `ADMINISTRADOR`                       |
+| Método   | Endpoint                | Descripción                               | Acceso                                |
+| :------- | :---------------------- | :---------------------------------------- | :------------------------------------ |
+| `GET`    | `/api/v1/usuarios`      | Lista todos los usuarios.                 | `ADMINISTRADOR`                       |
+| `GET`    | `/api/v1/usuarios/me`   | Obtiene los datos del perfil propio.      | `ADMINISTRADOR`, `DOCENTE`, `BECARIO` |
+| `PUT`    | `/api/v1/usuarios/{id}` | Modifica un usuario.                      | `ADMINISTRADOR` o el propio usuario   |
+| `DELETE` | `/api/v1/usuarios/{id}` | Elimina un usuario.                       | `ADMINISTRADOR`                       |
 
 ### 🏗️ Gestión de Proyectos
 
-| Método   | Endpoint               | Descripción                         | Acceso                                |
-| :------- | :--------------------- | :---------------------------------- | :------------------------------------ |
-| `POST`   | `/api/proyectos`       | Crea un nuevo proyecto.             | `ADMINISTRADOR`                       |
-| `GET`    | `/api/proyectos`       | Lista todos los proyectos.          | `ADMINISTRADOR`, `DOCENTE`, `BECARIO` |
-| `GET`    | `/api/proyectos/{id}`  | Obtiene un proyecto por su ID.      | `ADMINISTRADOR`, `DOCENTE`, `BECARIO` |
-| `PUT`    | `/api/proyectos/{id}`  | Actualiza un proyecto.              | `ADMINISTRADOR`                       |
-| `DELETE` | `/api/proyectos/{id}`  | Elimina un proyecto.                | `ADMINISTRADOR`                       |
+| Método   | Endpoint                  | Descripción                         | Acceso                                   |
+| :------- | :------------------------ | :---------------------------------- | :--------------------------------------- |
+| `POST`   | `/api/v1/proyectos`       | Crea un nuevo proyecto.             | `ADMINISTRADOR`, `DOCENTE`               |
+| `GET`    | `/api/v1/proyectos`       | Lista todos los proyectos.          | `ADMINISTRADOR`                          |
+| `GET`    | `/api/v1/proyectos/{id}`  | Obtiene un proyecto por su ID.      | `ADMINISTRADOR` o el director/integrante |
+| `PUT`    | `/api/v1/proyectos/{id}`  | Actualiza un proyecto.              | `ADMINISTRADOR` o el director            |
+| `DELETE` | `/api/v1/proyectos/{id}`  | Elimina un proyecto.                | `ADMINISTRADOR` o el director            |
+
+> Nota: En ausencia del director del proyecto, el permiso lo tiene el DOCENTE creador del mismo
 
 ### 📚 Gestión de Materias
 
-| Método   | Endpoint             | Descripción                       | Acceso                                |
-| :------- | :------------------- | :-------------------------------- | :------------------------------------ |
-| `POST`   | `/api/materias`      | Crea una nueva materia.           | `ADMINISTRADOR`                       |
-| `GET`    | `/api/materias`      | Lista todas las materias.         | `ADMINISTRADOR`, `DOCENTE`, `BECARIO` |
-| `GET`    | `/api/materias/{id}` | Obtiene una materia por su ID.    | `ADMINISTRADOR`, `DOCENTE`, `BECARIO` |
-| `PUT`    | `/api/materias/{id}` | Actualiza una materia.            | `ADMINISTRADOR`                       |
-| `DELETE` | `/api/materias/{id}` | Elimina una materia.              | `ADMINISTRADOR`                       |
+| Método   | Endpoint                | Descripción                       | Acceso                             |
+| :------- | :---------------------- | :-------------------------------- | :--------------------------------- |
+| `POST`   | `/api/v1/materias`      | Crea una nueva materia.           | `ADMINISTRADOR`                    |
+| `GET`    | `/api/v1/materias`      | Lista todas las materias.         | `ADMINISTRADOR`                    |
+| `GET`    | `/api/v1/materias/{id}` | Obtiene una materia por su ID.    | `ADMINISTRADOR` o si es integrante |
+| `PUT`    | `/api/v1/materias/{id}` | Actualiza una materia.            | `ADMINISTRADOR`                    |
+| `DELETE` | `/api/v1/materias/{id}` | Elimina una materia.              | `ADMINISTRADOR`                    |
 
 ### 🎓 Gestión de Becas
 
-| Método   | Endpoint           | Descripción                     | Acceso                                |
-| :------- | :----------------- | :------------------------------ | :------------------------------------ |
-| `POST`   | `/api/becas`       | Crea una nueva beca.            | `ADMINISTRADOR`                       |
-| `GET`    | `/api/becas`       | Lista todas las becas.          | `ADMINISTRADOR`, `DOCENTE`, `BECARIO` |
-| `GET`    | `/api/becas/{id}`  | Obtiene una beca por su ID.     | `ADMINISTRADOR`, `DOCENTE`, `BECARIO` |
-| `PUT`    | `/api/becas/{id}`  | Actualiza una beca.             | `ADMINISTRADOR`                       |
-| `DELETE` | `/api/becas/{id}`  | Elimina una beca.               | `ADMINISTRADOR`                       |
+| Método   | Endpoint              | Descripción                     | Acceso                           |
+| :------- | :-------------------- | :------------------------------ | :------------------------------- |
+| `POST`   | `/api/v1/becas`       | Crea una nueva beca.            | `ADMINISTRADOR`                  |
+| `GET`    | `/api/v1/becas`       | Lista todas las becas.          | `ADMINISTRADOR`                  |
+| `GET`    | `/api/v1/becas/{id}`  | Obtiene una beca por su ID.     | `ADMINISTRADOR` o el propietario |
+| `PUT`    | `/api/v1/becas/{id}`  | Actualiza una beca.             | `ADMINISTRADOR`                  |
+| `DELETE` | `/api/v1/becas/{id}`  | Elimina una beca.               | `ADMINISTRADOR`                  |
 
 ### 📝 Gestión de Actividades
 
-| Método   | Endpoint                 | Descripción                                  | Acceso                                               |
-| :------- | :----------------------- | :------------------------------------------- | :--------------------------------------------------- |
-| `POST`   | `/api/actividades`       | Registra una nueva actividad.                | `BECARIO`                                            |
-| `GET`    | `/api/actividades`       | Lista actividades (filtradas por usuario).   | `ADMINISTRADOR`, `DOCENTE`, `BECARIO`                |
-| `GET`    | `/api/actividades/{id}`  | Obtiene una actividad por su ID.             | Propietario, `DOCENTE` a cargo, `ADMINISTRADOR`      |
-| `PUT`    | `/api/actividades/{id}`  | Actualiza una actividad.                     | Propietario, `DOCENTE` a cargo, `ADMINISTRADOR`      |
-| `DELETE` | `/api/actividades/{id}`  | Elimina una actividad.                       | Propietario, `DOCENTE` a cargo, `ADMINISTRADOR`      |
+| Método   | Endpoint                    | Descripción                      | Acceso                                        |
+| :------- | :-------------------------- | :------------------------------- | :-------------------------------------------- |
+| `POST`   | `/api/v1/actividades`       | Registra una nueva actividad.    | `ADMINISTRADOR` o el responsable del proyecto |
+| `GET`    | `/api/v1/actividades`       | Listar actividades               | `ADMINISTRADOR`                               |
+| `GET`    | `/api/v1/actividades/{id}`  | Obtiene una actividad por su ID. | `ADMINISTRADOR` o el responsable del proyecto |
+| `PUT`    | `/api/v1/actividades/{id}`  | Actualiza una actividad.         | `ADMINISTRADOR` o el responsable del proyecto |
+| `DELETE` | `/api/v1/actividades/{id}`  | Elimina una actividad.           | `ADMINISTRADOR` o el responsable del proyecto |
 
 ### 🛡️ Gestión de Roles
 
-| Método | Endpoint    | Descripción                         | Acceso          |
-| :----- | :---------- | :---------------------------------- | :-------------- |
-| `GET`  | `/api/roles`| Lista todos los roles disponibles.  | `ADMINISTRADOR` |
+| Método | Endpoint       | Descripción                         | Acceso          |
+| :----- | :------------- | :---------------------------------- | :-------------- |
+| `GET`  | `/api/v1/roles`| Lista todos los roles disponibles.  | `ADMINISTRADOR` |
+
+### 🌐 Gestión de Áreas
+
+| Método | Endpoint       | Descripción                              | Acceso                                |
+| :----- | :------------- | :--------------------------------------- | :------------------------------------ |
+| `GET`  | `/api/v1/areas`| Lista todas las áreas de investigación.  | `ADMINISTRADOR`, `DOCENTE`, `BECARIO` |
 
 ---
 
@@ -198,7 +205,7 @@ A continuación se detallan los principales grupos de endpoints de la API.
 
 Una vez que la aplicación está en ejecución, puedes acceder a la documentación interactiva de Swagger UI para explorar y probar los endpoints:
 
-*   **URL (con Docker):** `http://localhost/swagger-ui.html`
+*   **URL (con Docker):** `https://localhost/swagger-ui.html`
 
 ---
 
@@ -215,7 +222,6 @@ Una vez que la aplicación está en ejecución, puedes acceder a la documentaci�
 
 *   **Motor:** MySQL 8, ejecutándose en un contenedor Docker.
 *   **Persistencia:** Los datos se guardan en un volumen de Docker (`mysql_data`) para que no se pierdan al reiniciar los contenedores. Puedes inspeccionarlo con `docker volume inspect gestion-usuarios_mysql_data`.
-*   **Administración:** Puedes administrar la base de datos a través de **phpMyAdmin**, disponible en `http://localhost:8081`.
 
 ----
 
