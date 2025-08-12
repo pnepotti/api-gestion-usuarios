@@ -31,26 +31,26 @@ public class MateriaController {
 
     private final MateriaService materiaService;
 
-    @PreAuthorize("hasRole('ADMINISTRADOR')")
+    @PreAuthorize("isAuthenticated()")
     @GetMapping
     public ResponseEntity<Page<MateriaResponseDTO>> listarMaterias(Pageable pageable) {
         return ResponseEntity.ok(materiaService.listarMaterias(pageable));
     }
 
-    @PreAuthorize("hasRole('ADMINISTRADOR') or @materiaSecurity.esIntegrante(#id, authentication)")
+    @PreAuthorize("isAuthenticated()")
     @GetMapping("/{id}")
     public ResponseEntity<MateriaResponseDTO> obtenerMateria(@PathVariable Long id) {
         return ResponseEntity.ok(materiaService.obtenerMateria(id));
     }
 
-    @PreAuthorize("hasRole('ADMINISTRADOR')")
+    @PreAuthorize("hasRole('ADMINISTRADOR') or hasRole('DOCENTE')")
     @PostMapping
     public ResponseEntity<MateriaResponseDTO> crearMateria(@Valid @RequestBody MateriaRequestDTO materiaDto) {
         MateriaResponseDTO materiaGuardada = materiaService.crearMateria(materiaDto);
         return ResponseEntity.status(HttpStatus.CREATED).body(materiaGuardada);
     }
 
-    @PreAuthorize("hasRole('ADMINISTRADOR')")
+    @PreAuthorize("hasRole('ADMINISTRADOR') or hasRole('DOCENTE')")
     @PutMapping("/{id}")
     public ResponseEntity<MateriaResponseDTO> actualizarMateria(@PathVariable Long id, @Valid @RequestBody MateriaRequestDTO materiaDto) {
         return ResponseEntity.ok(materiaService.actualizarMateria(id, materiaDto));
@@ -65,7 +65,7 @@ public class MateriaController {
 
     //USUARIOS
 
-    @PreAuthorize("hasRole('ADMINISTRADOR')")
+    @PreAuthorize("hasRole('ADMINISTRADOR') or hasRole('DOCENTE')")
     @PutMapping("/{id}/integrantes/{usuarioId}")
     public ResponseEntity<Void> asignarUsuarioAMateria(
             @PathVariable Long id,
@@ -74,7 +74,7 @@ public class MateriaController {
         return ResponseEntity.noContent().build();
     }  
 
-    @PreAuthorize("hasRole('ADMINISTRADOR')")
+    @PreAuthorize("hasRole('ADMINISTRADOR') or hasRole('DOCENTE')")
     @DeleteMapping("/{id}/integrantes/{usuarioId}")
     public ResponseEntity<Void> quitarUsuarioDeMateria(
             @PathVariable Long id,
@@ -84,7 +84,7 @@ public class MateriaController {
         return ResponseEntity.noContent().build();
     }
 
-    @PreAuthorize("hasRole('ADMINISTRADOR')")
+    @PreAuthorize("hasRole('ADMINISTRADOR') or hasRole('DOCENTE') or @materiaSecurity.esIntegrante(#id, authentication)")
     @GetMapping("/{id}/integrantes")
     public ResponseEntity<Page<UsuarioResponseDTO>> listarIntegrantesDeMateria(@PathVariable Long id, Pageable pageable) {
         return ResponseEntity.ok(materiaService.listarIntegrantesDeMateria(id, pageable));

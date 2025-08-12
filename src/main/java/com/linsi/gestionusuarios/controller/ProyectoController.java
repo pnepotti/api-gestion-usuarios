@@ -33,7 +33,7 @@ public class ProyectoController {
 
     private final ProyectoService proyectoService;
 
-    @PreAuthorize("hasRole('ADMINISTRADOR')")
+    @PreAuthorize("isAuthenticated()")
     @GetMapping
     public ResponseEntity<Page<ProyectoResponseDTO>> listarProyectos(Pageable pageable) {
         return ResponseEntity.ok(proyectoService.listarProyectos(pageable));
@@ -58,7 +58,7 @@ public class ProyectoController {
         return ResponseEntity.ok(proyectoService.actualizarProyecto(id, proyectoDto));
     }
 
-    @PreAuthorize("hasRole('ADMINISTRADOR') or @proyectoSecurity.esDirector(#id, authentication.principal.id)")
+    @PreAuthorize("hasRole('ADMINISTRADOR')")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> eliminarProyecto(@PathVariable Long id) {
         proyectoService.eliminarProyecto(id);

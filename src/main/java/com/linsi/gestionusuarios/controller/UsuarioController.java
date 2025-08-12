@@ -44,13 +44,14 @@ public class UsuarioController {
     private final UsuarioService usuarioService;
     private final AuthService authService;
 
+    @PreAuthorize("hasRole('ADMINISTRADOR')")
     @PostMapping
     public ResponseEntity<MensajeResponseDTO> crearUsuario(@Valid @RequestBody UsuarioRegistroDTO usuarioDto) {
         authService.register(usuarioDto);
         return ResponseEntity.status(HttpStatus.CREATED).body(new MensajeResponseDTO("Usuario creado correctamente."));
     }
 
-    @PreAuthorize("hasRole('ADMINISTRADOR')")
+    @PreAuthorize("hasRole('ADMINISTRADOR') or hasRole('DOCENTE') or hasRole('BECARIO')")
     @GetMapping
     public ResponseEntity<Page<UsuarioResponseDTO>> listarUsuarios(
             @RequestParam(required = false) String dni,
@@ -62,7 +63,7 @@ public class UsuarioController {
         return ResponseEntity.ok(usuarioService.getUsuarios(dni, rol, area, nombre, apellido, pageable));
     }
 
-    @PreAuthorize("hasRole('ADMINISTRADOR') or #id == authentication.principal.id")
+    @PreAuthorize("hasRole('ADMINISTRADOR') or hasRole('DOCENTE') or hasRole('BECARIO')")
     @GetMapping("/{id}")
     public ResponseEntity<UsuarioResponseDTO> obtenerUsuarioPorId(@PathVariable Long id) {
         UsuarioResponseDTO usuario = usuarioService.getUsuarioDto(id);
@@ -76,7 +77,7 @@ public class UsuarioController {
         return ResponseEntity.noContent().build();
     }
 
-    @PreAuthorize("hasRole('ADMINISTRADOR') or #id == authentication.principal.id")
+    @PreAuthorize("hasRole('ADMINISTRADOR')")
     @PutMapping("/{id}")
     public ResponseEntity<UsuarioResponseDTO> actualizarUsuario(@PathVariable Long id, @Valid @RequestBody UsuarioUpdateDTO dto) {
         UsuarioResponseDTO usuarioActualizado = usuarioService.actualizarUsuario(id, dto);

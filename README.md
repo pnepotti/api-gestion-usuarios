@@ -140,9 +140,9 @@ A continuación se detallan los principales grupos de endpoints de la API.
 
 | Método   | Endpoint                | Descripción                               | Acceso                                |
 | :------- | :---------------------- | :---------------------------------------- | :------------------------------------ |
-| `GET`    | `/api/v1/usuarios`      | Lista todos los usuarios.                 | `ADMINISTRADOR`                       |
+| `GET`    | `/api/v1/usuarios`      | Lista todos los usuarios.                 | `ADMINISTRADOR`, `DOCENTE`, `BECARIO` |
 | `GET`    | `/api/v1/usuarios/me`   | Obtiene los datos del perfil propio.      | `ADMINISTRADOR`, `DOCENTE`, `BECARIO` |
-| `PUT`    | `/api/v1/usuarios/{id}` | Modifica un usuario.                      | `ADMINISTRADOR` o el propio usuario   |
+| `PUT`    | `/api/v1/usuarios/{id}` | Modifica un usuario.                      | `ADMINISTRADOR`                       |
 | `DELETE` | `/api/v1/usuarios/{id}` | Elimina un usuario.                       | `ADMINISTRADOR`                       |
 
 ### 🏗️ Gestión de Proyectos
@@ -150,22 +150,22 @@ A continuación se detallan los principales grupos de endpoints de la API.
 | Método   | Endpoint                  | Descripción                         | Acceso                                   |
 | :------- | :------------------------ | :---------------------------------- | :--------------------------------------- |
 | `POST`   | `/api/v1/proyectos`       | Crea un nuevo proyecto.             | `ADMINISTRADOR`, `DOCENTE`               |
-| `GET`    | `/api/v1/proyectos`       | Lista todos los proyectos.          | `ADMINISTRADOR`                          |
+| `GET`    | `/api/v1/proyectos`       | Lista todos los proyectos.          | Usuario autenticado                      |
 | `GET`    | `/api/v1/proyectos/{id}`  | Obtiene un proyecto por su ID.      | `ADMINISTRADOR` o el director/integrante |
 | `PUT`    | `/api/v1/proyectos/{id}`  | Actualiza un proyecto.              | `ADMINISTRADOR` o el director            |
-| `DELETE` | `/api/v1/proyectos/{id}`  | Elimina un proyecto.                | `ADMINISTRADOR` o el director            |
+| `DELETE` | `/api/v1/proyectos/{id}`  | Elimina un proyecto.                | `ADMINISTRADOR`                          |
 
 > Nota: En ausencia del director del proyecto, el permiso lo tiene el DOCENTE creador del mismo
 
 ### 📚 Gestión de Materias
 
-| Método   | Endpoint                | Descripción                       | Acceso                             |
-| :------- | :---------------------- | :-------------------------------- | :--------------------------------- |
-| `POST`   | `/api/v1/materias`      | Crea una nueva materia.           | `ADMINISTRADOR`                    |
-| `GET`    | `/api/v1/materias`      | Lista todas las materias.         | `ADMINISTRADOR`                    |
-| `GET`    | `/api/v1/materias/{id}` | Obtiene una materia por su ID.    | `ADMINISTRADOR` o si es integrante |
-| `PUT`    | `/api/v1/materias/{id}` | Actualiza una materia.            | `ADMINISTRADOR`                    |
-| `DELETE` | `/api/v1/materias/{id}` | Elimina una materia.              | `ADMINISTRADOR`                    |
+| Método   | Endpoint                | Descripción                       | Acceso                                |
+| :------- | :---------------------- | :-------------------------------- | :------------------------------------ |
+| `POST`   | `/api/v1/materias`      | Crea una nueva materia.           | `ADMINISTRADOR`, `DOCENTE`            |
+| `GET`    | `/api/v1/materias`      | Lista todas las materias.         | Usuario autenticado                   |
+| `GET`    | `/api/v1/materias/{id}` | Obtiene una materia por su ID.    | Usuario autenticado                   |
+| `PUT`    | `/api/v1/materias/{id}` | Actualiza una materia.            | `ADMINISTRADOR`, `DOCENTE`            |
+| `DELETE` | `/api/v1/materias/{id}` | Elimina una materia.              | `ADMINISTRADOR`                       |
 
 ### 🎓 Gestión de Becas
 
@@ -179,13 +179,13 @@ A continuación se detallan los principales grupos de endpoints de la API.
 
 ### 📝 Gestión de Actividades
 
-| Método   | Endpoint                    | Descripción                      | Acceso                                        |
-| :------- | :-------------------------- | :------------------------------- | :-------------------------------------------- |
-| `POST`   | `/api/v1/actividades`       | Registra una nueva actividad.    | `ADMINISTRADOR` o el responsable del proyecto |
-| `GET`    | `/api/v1/actividades`       | Listar actividades               | `ADMINISTRADOR`                               |
-| `GET`    | `/api/v1/actividades/{id}`  | Obtiene una actividad por su ID. | `ADMINISTRADOR` o el responsable del proyecto |
-| `PUT`    | `/api/v1/actividades/{id}`  | Actualiza una actividad.         | `ADMINISTRADOR` o el responsable del proyecto |
-| `DELETE` | `/api/v1/actividades/{id}`  | Elimina una actividad.           | `ADMINISTRADOR` o el responsable del proyecto |
+| Método   | Endpoint                             | Descripción                      | Acceso                                                |
+| :------- | :----------------------------------- | :------------------------------- | :---------------------------------------------------- |
+| `POST`   | `/api/v1/proyectos/{id}/actividades` | Registra una nueva actividad.    | `ADMINISTRADOR` o el director del proyecto            |
+| `GET`    | `/api/v1/actividades`                | Listar actividades               | Usuario autenticado                 |
+| `GET`    | `/api/v1/actividades/{id}`           | Obtiene una actividad por su ID. | `ADMINISTRADOR` o el director/integrante del proyecto |
+| `PUT`    | `/api/v1/actividades/{id}`           | Actualiza una actividad.         | `ADMINISTRADOR` o el director del proyecto            |
+| `DELETE` | `/api/v1/actividades/{id}`           | Elimina una actividad.           | `ADMINISTRADOR` o el director del proyecto            |
 
 ### 🛡️ Gestión de Roles
 
@@ -195,9 +195,9 @@ A continuación se detallan los principales grupos de endpoints de la API.
 
 ### 🌐 Gestión de Áreas
 
-| Método | Endpoint       | Descripción                              | Acceso                                |
-| :----- | :------------- | :--------------------------------------- | :------------------------------------ |
-| `GET`  | `/api/v1/areas`| Lista todas las áreas de investigación.  | `ADMINISTRADOR`, `DOCENTE`, `BECARIO` |
+| Método | Endpoint       | Descripción                              | Acceso              |
+| :----- | :------------- | :--------------------------------------- | :------------------ |
+| `GET`  | `/api/v1/areas`| Lista todas las áreas de investigación.  | Usuario autenticado |
 
 ---
 

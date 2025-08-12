@@ -29,7 +29,7 @@ public class ActividadController {
 
     private final ActividadService actividadService;
 
-    @PreAuthorize("hasAnyRole('ADMINISTRADOR')")
+    @PreAuthorize("isAuthenticated()")
     @GetMapping
     public ResponseEntity<Page<ActividadResponseDTO>> listarActividades(Pageable pageable) {
         return ResponseEntity.ok(actividadService.listarActividades(pageable));
