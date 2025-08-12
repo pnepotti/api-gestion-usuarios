@@ -16,9 +16,11 @@ import com.linsi.gestionusuarios.mapper.ActividadMapper;
 import com.linsi.gestionusuarios.mapper.ProyectoMapper;
 import com.linsi.gestionusuarios.mapper.UsuarioMapper;
 import com.linsi.gestionusuarios.model.Actividad;
+import com.linsi.gestionusuarios.model.Area;
 import com.linsi.gestionusuarios.model.Proyecto;
 import com.linsi.gestionusuarios.model.Usuario;
 import com.linsi.gestionusuarios.repository.ActividadRepository;
+import com.linsi.gestionusuarios.repository.AreaRepository;
 import com.linsi.gestionusuarios.repository.ProyectoRepository;
 import com.linsi.gestionusuarios.repository.UsuarioRepository;
 
@@ -34,6 +36,7 @@ public class ProyectoService {
     private final ProyectoMapper proyectoMapper;
     private final UsuarioMapper usuarioMapper;
     private final ActividadMapper actividadMapper;
+    private final AreaRepository areaRepository;
 
     @Transactional(readOnly = true)
     public Page<ProyectoResponseDTO> listarProyectos(Pageable pageable) {
@@ -73,15 +76,16 @@ public class ProyectoService {
         if (proyecto.getDirector() != null) {
             proyecto.getDirector().getProyectosDirigidos().remove(proyecto);
             proyecto.setDirector(null);
-        }        
+        }
+        proyecto.borrarArea();
         for (Usuario integrante : new java.util.HashSet<>(proyecto.getIntegrantes())) {
             integrante.getProyectos().remove(proyecto);
         }
         proyecto.getIntegrantes().clear();
-        for (Actividad actividad : new java.util.HashSet<>(proyecto.getActividades())) {
-            actividad.setProyecto(null); 
-        }
+
+        actividadRepository.deleteAll(proyecto.getActividades());
         proyecto.getActividades().clear();
+
         proyectoRepository.delete(proyecto);
     }
 
@@ -144,7 +148,7 @@ public class ProyectoService {
         return integrantes.map(usuarioMapper::toDto);
     }
 
-    // --- Métodos de Actividades ---
+    // ACTIVIDADES
 
     @Transactional(readOnly = true)
     public Page<ActividadResponseDTO> listarActividadesDeProyecto(Long proyectoId, Pageable pageable) {
@@ -177,6 +181,32 @@ public class ProyectoService {
         proyecto.getActividades().remove(actividad);
     }
 
+    // ÁREAS
+
+    @Transactional
+    public void asignarArea(Long proyectoId, Long areaId) {
+        Proyecto proyecto = findProyectoById(proyectoId);
+        Area nuevaArea = findAreaById(areaId);
+
+        // Desvincular del área anterior si existe
+        if (proyecto.getArea() != null) {
+            proyecto.getArea().getProyectos().remove(proyecto);
+        }
+
+        // Vincular a la nueva área
+        proyecto.setArea(nuevaArea);
+        nuevaArea.getProyectos().add(proyecto);
+    }
+
+    @Transactional
+    public void quitarArea(Long proyectoId) {
+        Proyecto proyecto = findProyectoById(proyectoId);
+        if (proyecto.getArea() == null) {
+            throw new ResourceNotFoundException("El proyecto con ID " + proyectoId + " no tiene un área asignada.");
+        }
+        proyecto.borrarArea();
+    }
+
     // --- Métodos privados de ayuda ---
 
     private Proyecto findProyectoById(Long proyectoId) {
@@ -187,5 +217,10 @@ public class ProyectoService {
     private Usuario findUsuarioById(Long usuarioId) {
         return usuarioRepository.findById(usuarioId)
                 .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado con ID: " + usuarioId));
+    }
+
+    private Area findAreaById(Long areaId) {
+        return areaRepository.findById(areaId)
+                .orElseThrow(() -> new ResourceNotFoundException("Área no encontrada con ID: " + areaId));
     }
 }

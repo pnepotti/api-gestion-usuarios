@@ -22,12 +22,16 @@ public interface UsuarioRepository extends JpaRepository<Usuario, Long> {
     Page<Usuario> findByRolNombre(String rol, Pageable pageable);
 
     @EntityGraph(attributePaths = "rol")
+    Page<Usuario> findByAreaNombre(String area, Pageable pageable);
+
+    @EntityGraph(attributePaths = "rol")
     Page<Usuario> findByNombreContainingIgnoreCaseAndApellidoContainingIgnoreCase(String nombre, String apellido, Pageable pageable);
     
     boolean existsByRolId(Long rolId);
     boolean existsByLegajo(String legajo);
     boolean existsByDni(String dni);
-    boolean existsByEmail(String email);    
+    boolean existsByEmail(String email);
+    boolean existsByLegajoAndIdNot(String legajo, Long id);
     boolean existsByDniAndIdNot(String dni, Long id);
     boolean existsByEmailAndIdNot(String email, Long id);
 
@@ -40,4 +44,7 @@ public interface UsuarioRepository extends JpaRepository<Usuario, Long> {
 
     @EntityGraph(attributePaths = "rol")
     Page<Usuario> findByMaterias_Id(Long materiaId, Pageable pageable);
+
+    @EntityGraph(attributePaths = "rol")
+    Page<Usuario> findByArea_Id(Long areaId, Pageable pageable);
 }

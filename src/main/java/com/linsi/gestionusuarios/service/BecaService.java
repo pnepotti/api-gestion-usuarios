@@ -119,6 +119,8 @@ public class BecaService {
                 .collect(Collectors.toList());
     }
 
+    // --- Métodos privados de ayuda ---
+
     private Beca findBecaById(Long becaId) {
         return becaRepository.findById(becaId)
                 .orElseThrow(() -> new ResourceNotFoundException("Beca no encontrada con ID: " + becaId));

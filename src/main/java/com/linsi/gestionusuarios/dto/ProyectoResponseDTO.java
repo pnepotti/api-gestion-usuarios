@@ -19,4 +19,5 @@ public class ProyectoResponseDTO {
     private String estado;
     private UsuarioResponseDTO director;
     private List<UsuarioResponseDTO> integrantes;
+    private AreaResponseDTO area;
 }

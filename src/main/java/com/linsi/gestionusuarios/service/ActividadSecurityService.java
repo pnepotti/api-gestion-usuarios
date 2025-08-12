@@ -1,11 +1,8 @@
 package com.linsi.gestionusuarios.service;
 
-import java.util.Optional;
-
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
-import com.linsi.gestionusuarios.model.Actividad;
 import com.linsi.gestionusuarios.model.Usuario;
 import com.linsi.gestionusuarios.repository.ActividadRepository;
 
@@ -17,24 +14,33 @@ public class ActividadSecurityService {
     private final ActividadRepository actividadRepository;
     private final ProyectoSecurityService proyectoSecurityService;
 
-    public boolean puedeModificar(Long actividadId, Authentication authentication) {
-        Optional<Actividad> actividadOpt = actividadRepository.findById(actividadId);
-        if (actividadOpt.isEmpty()) {
-            return true;
-        }
-        Actividad actividad = actividadOpt.get();
+    public boolean esResponsable(Long actividadId, Authentication authentication) {
+        return actividadRepository.findById(actividadId)
+                .map(actividad -> {
+                    Usuario usuario = (Usuario) authentication.getPrincipal();
+                    Long usuarioId = usuario.getId();
 
-        if (hasRole(authentication, "ADMINISTRADOR")) {
-            return true;
-        }
+                    if (actividad.getProyecto() == null) {
+                        return hasRole(authentication, "DOCENTE");
+                    }
+                    return proyectoSecurityService.esDirector(actividad.getProyecto().getId(), usuarioId);
+                })
+                .orElse(false);
+    }
 
-        Long usuarioId = ((Usuario) authentication.getPrincipal()).getId();
+    public boolean esIntegranteDelProyecto(Long actividadId, Authentication authentication) {
+        Usuario usuarioAutenticado = (Usuario) authentication.getPrincipal();
+        Long usuarioId = usuarioAutenticado.getId();
 
-        if (actividad.getProyecto() == null) {
-            return hasRole(authentication, "DOCENTE");
-        } else {
-            return proyectoSecurityService.esDirector(actividad.getProyecto().getId(), usuarioId);
-        }
+        return actividadRepository.findById(actividadId)
+            .map(actividad -> {
+                if (actividad.getProyecto() == null) {
+                    return false;
+                }
+                return actividad.getProyecto().getIntegrantes().stream()
+                    .anyMatch(integrante -> integrante.getId().equals(usuarioId));
+            })
+            .orElse(false); // Si la actividad no existe, se deniega el acceso.
     }
 
     private boolean hasRole(Authentication authentication, String roleName) {

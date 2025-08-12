@@ -26,8 +26,10 @@ import com.linsi.gestionusuarios.exception.ResourceNotFoundException;
 import com.linsi.gestionusuarios.mapper.MateriaMapper;
 import com.linsi.gestionusuarios.mapper.ProyectoMapper;
 import com.linsi.gestionusuarios.mapper.UsuarioMapper;
+import com.linsi.gestionusuarios.model.Area;
 import com.linsi.gestionusuarios.model.Rol;
 import com.linsi.gestionusuarios.model.Usuario;
+import com.linsi.gestionusuarios.repository.AreaRepository;
 import com.linsi.gestionusuarios.repository.RolRepository;
 import com.linsi.gestionusuarios.repository.UsuarioRepository;
 
@@ -44,15 +46,19 @@ public class UsuarioService {
     private final UsuarioMapper usuarioMapper;
     private final MateriaMapper materiaMapper;
     private final ProyectoMapper proyectoMapper;
+    private final AreaRepository areaRepository;
+
 
     @Transactional(readOnly = true)
-    public Page<UsuarioResponseDTO> getUsuarios(String dni, String rol, String nombre, String apellido, Pageable pageable) {
+    public Page<UsuarioResponseDTO> getUsuarios(String dni, String rol, String area, String nombre, String apellido, Pageable pageable) {
         Page<Usuario> usuariosPage;
         if (dni != null && !dni.isEmpty()) {
             List<Usuario> resultList = usuarioRepository.findByDni(dni).map(List::of).orElse(List.of());
             usuariosPage = new PageImpl<>(resultList, pageable, resultList.size());
         } else if (rol != null && !rol.isEmpty()) {
             usuariosPage = usuarioRepository.findByRolNombre(rol, pageable);
+        } else if (area != null && !area.isEmpty()) {
+            usuariosPage = usuarioRepository.findByAreaNombre(area, pageable);
         } else if (nombre != null && !nombre.isEmpty() && apellido != null && !apellido.isEmpty()) {
             usuariosPage = usuarioRepository.findByNombreContainingIgnoreCaseAndApellidoContainingIgnoreCase(nombre, apellido, pageable);
         } else {
@@ -68,6 +74,7 @@ public class UsuarioService {
 
         desvincularDeRol(usuario);
         desvincularDeMaterias(usuario);
+        desvincularDeArea(usuario);
         desvincularDeProyectosComoIntegrante(usuario);
         desvincularDeProyectosComoDirector(usuario);
 
@@ -88,7 +95,7 @@ public class UsuarioService {
             throw new EmailAlreadyExistsException("El email " + dto.getEmail() + " ya está registrado por otro usuario.");
         }
 
-        if (dto.getLegajo() != null && usuarioRepository.existsByLegajo(dto.getLegajo())) {
+        if (dto.getLegajo() != null && usuarioRepository.existsByLegajoAndIdNot(dto.getLegajo(), usuarioId)) {
             throw new LegajoAlreadyExistsException("El legajo " + dto.getLegajo() + " ya está registrado por otro usuario.");
         }
         
@@ -134,6 +141,22 @@ public class UsuarioService {
         nuevoRol.getUsuarios().add(usuario);
     }
 
+    @Transactional
+    public void asignarArea(Long usuarioId, Long areaId) {
+        Usuario usuario = usuarioRepository.findById(usuarioId)
+            .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado con ID: " + usuarioId));
+        
+        Area nuevoArea = areaRepository.findById(areaId)
+            .orElseThrow(() -> new ResourceNotFoundException("Area no encontrada con ID: " + areaId));
+
+        if (usuario.getArea() != null) {
+            usuario.getArea().getUsuarios().remove(usuario);
+        }
+
+        usuario.setArea(nuevoArea);
+        nuevoArea.getUsuarios().add(usuario);
+    }
+
     @Transactional(readOnly = true)
     public List<BecaResponseDTO> getBecasByUsuario(Long usuarioId) {
         return becaService.listarBecasPorUsuario(usuarioId);
@@ -176,6 +199,12 @@ public class UsuarioService {
     private void desvincularDeRol(Usuario usuario) {
         if (usuario.getRol() != null) {
             usuario.getRol().getUsuarios().remove(usuario);
+        }
+    }
+
+    private void desvincularDeArea(Usuario usuario) {
+        if (usuario.getArea() != null) {
+            usuario.getArea().getUsuarios().remove(usuario);
         }
     }
 

@@ -22,26 +22,26 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/api/actividades")
+@RequestMapping("/api/v1/actividades")
 @RequiredArgsConstructor
 @Tag(name = "Gestión de Actividades", description = "API para la creación y gestión de las actividades")
 public class ActividadController {
 
     private final ActividadService actividadService;
 
-    @PreAuthorize("hasRole('ADMINISTRADOR') or hasRole('DOCENTE')")
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR')")
     @GetMapping
     public ResponseEntity<Page<ActividadResponseDTO>> listarActividades(Pageable pageable) {
         return ResponseEntity.ok(actividadService.listarActividades(pageable));
     }
 
-    @PreAuthorize("hasRole('ADMINISTRADOR') or hasRole('DOCENTE')")
+    @PreAuthorize("hasRole('ADMINISTRADOR') or @actividadSecurity.esResponsable(#id, authentication) or @actividadSecurity.esIntegranteDelProyecto(#id, authentication)")
     @GetMapping("/{id}")
     public ResponseEntity<ActividadResponseDTO> obtenerActividad(@PathVariable Long id) {
         return ResponseEntity.ok(actividadService.obtenerActividad(id));
     }
 
-    @PreAuthorize("@actividadSecurity.puedeModificar(#id, authentication)")
+    @PreAuthorize("hasRole('ADMINISTRADOR') or @actividadSecurity.esResponsable(#id, authentication)")
     @PutMapping("/{id}")
     public ResponseEntity<ActividadResponseDTO> actualizarActividad(
             @PathVariable Long id,
@@ -52,7 +52,7 @@ public class ActividadController {
         return ResponseEntity.ok(actualizada);
     }
 
-    @PreAuthorize("@actividadSecurity.puedeModificar(#id, authentication)")
+    @PreAuthorize("hasRole('ADMINISTRADOR') or @actividadSecurity.esResponsable(#id, authentication)")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> eliminarActividad(
             @PathVariable Long id,
@@ -63,4 +63,3 @@ public class ActividadController {
     }
 
  }
-

@@ -26,7 +26,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/api/proyectos")
+@RequestMapping("/api/v1/proyectos")
 @RequiredArgsConstructor
 @Tag(name = "Gestión de Proyectos", description = "API para la creación y gestión de los proyectos")
 public class ProyectoController {
@@ -65,7 +65,7 @@ public class ProyectoController {
         return ResponseEntity.noContent().build();
     }
 
-    //USUARIOS
+    // USUARIOS
 
     @PreAuthorize("hasRole('ADMINISTRADOR') or @proyectoSecurity.esDirector(#id, authentication.principal.id)")
     @PutMapping("/{id}/integrantes/{usuarioId}")
@@ -131,6 +131,25 @@ public class ProyectoController {
             @PathVariable Long id,
             @PathVariable Long actividadId) {
         proyectoService.quitarActividadDeProyecto(id, actividadId);
+        return ResponseEntity.noContent().build();
+    }
+
+    // ÁREAS
+
+    @PreAuthorize("hasRole('ADMINISTRADOR') or @proyectoSecurity.esDirector(#id, authentication.principal.id)")
+    @PutMapping("/{id}/area/{areaId}")
+    public ResponseEntity<Void> asignarArea(
+            @PathVariable Long id,
+            @PathVariable Long areaId) {
+        proyectoService.asignarArea(id, areaId);
+        return ResponseEntity.noContent().build();
+    }
+
+    @PreAuthorize("hasRole('ADMINISTRADOR') or @proyectoSecurity.esDirector(#id, authentication.principal.id)")
+    @DeleteMapping("/{id}/area")
+    public ResponseEntity<Void> quitarArea(
+            @PathVariable Long id) {
+        proyectoService.quitarArea(id);
         return ResponseEntity.noContent().build();
     }
 }

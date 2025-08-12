@@ -22,10 +22,13 @@ import com.linsi.gestionusuarios.dto.BecaRequestDTO;
 import com.linsi.gestionusuarios.dto.BecaResponseDTO;
 import com.linsi.gestionusuarios.dto.CambiarPasswordDTO;
 import com.linsi.gestionusuarios.dto.MateriaResponseDTO;
+import com.linsi.gestionusuarios.dto.MensajeResponseDTO;
 import com.linsi.gestionusuarios.dto.ProyectoResponseDTO;
+import com.linsi.gestionusuarios.dto.UsuarioRegistroDTO;
 import com.linsi.gestionusuarios.dto.UsuarioResponseDTO;
 import com.linsi.gestionusuarios.dto.UsuarioUpdateDTO;
 import com.linsi.gestionusuarios.model.Usuario;
+import com.linsi.gestionusuarios.service.AuthService;
 import com.linsi.gestionusuarios.service.UsuarioService;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -33,22 +36,30 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/api/usuarios")
+@RequestMapping("/api/v1/usuarios")
 @RequiredArgsConstructor
 @Tag(name = "Gestión de Usuarios", description = "API para la creación y gestión de usuarios")
 public class UsuarioController {
 
     private final UsuarioService usuarioService;
+    private final AuthService authService;
 
-    @PreAuthorize("hasRole('ADMINISTRADOR') or hasRole('DOCENTE')")
+    @PostMapping
+    public ResponseEntity<MensajeResponseDTO> crearUsuario(@Valid @RequestBody UsuarioRegistroDTO usuarioDto) {
+        authService.register(usuarioDto);
+        return ResponseEntity.status(HttpStatus.CREATED).body(new MensajeResponseDTO("Usuario creado correctamente."));
+    }
+
+    @PreAuthorize("hasRole('ADMINISTRADOR')")
     @GetMapping
     public ResponseEntity<Page<UsuarioResponseDTO>> listarUsuarios(
             @RequestParam(required = false) String dni,
             @RequestParam(required = false) String rol,
+            @RequestParam(required = false) String area,
             @RequestParam(required = false) String nombre,
             @RequestParam(required = false) String apellido,
             Pageable pageable) {
-        return ResponseEntity.ok(usuarioService.getUsuarios(dni, rol, nombre, apellido, pageable));
+        return ResponseEntity.ok(usuarioService.getUsuarios(dni, rol, area, nombre, apellido, pageable));
     }
 
     @PreAuthorize("hasRole('ADMINISTRADOR') or #id == authentication.principal.id")
@@ -65,7 +76,7 @@ public class UsuarioController {
         return ResponseEntity.noContent().build();
     }
 
-    @PreAuthorize("hasRole('ADMINISTRADOR')")
+    @PreAuthorize("hasRole('ADMINISTRADOR') or #id == authentication.principal.id")
     @PutMapping("/{id}")
     public ResponseEntity<UsuarioResponseDTO> actualizarUsuario(@PathVariable Long id, @Valid @RequestBody UsuarioUpdateDTO dto) {
         UsuarioResponseDTO usuarioActualizado = usuarioService.actualizarUsuario(id, dto);
@@ -111,7 +122,7 @@ public class UsuarioController {
 
     //BECAS
 
-    @PreAuthorize("#id == authentication.principal.id or hasRole('ADMINISTRADOR') or hasRole('DOCENTE')")
+    @PreAuthorize("#id == authentication.principal.id or hasRole('ADMINISTRADOR')")
     @GetMapping("/{id}/becas")
     public ResponseEntity<List<BecaResponseDTO>> listarBecasDeUsuario(@PathVariable Long id) {
         return ResponseEntity.ok(usuarioService.getBecasByUsuario(id));
@@ -128,7 +139,7 @@ public class UsuarioController {
 
     //PROYECTOS
 
-    @PreAuthorize("#id == authentication.principal.id or hasRole('ADMINISTRADOR') or hasRole('DOCENTE')")
+    @PreAuthorize("#id == authentication.principal.id or hasRole('ADMINISTRADOR')")
     @GetMapping("/{id}/proyectos")
     public ResponseEntity<List<ProyectoResponseDTO>> listarProyectosDeUsuario(@PathVariable Long id) {
         return ResponseEntity.ok(usuarioService.getProyectosByUsuario(id));
@@ -136,9 +147,20 @@ public class UsuarioController {
 
     //MATERIAS
 
-    @PreAuthorize("#id == authentication.principal.id or hasRole('ADMINISTRADOR') or hasRole('DOCENTE')")
+    @PreAuthorize("#id == authentication.principal.id or hasRole('ADMINISTRADOR')")
     @GetMapping("/{id}/materias")
     public ResponseEntity<List<MateriaResponseDTO>> listarMateriasDeUsuario(@PathVariable Long id) {
         return ResponseEntity.ok(usuarioService.getMateriasByUsuario(id));
+    }
+
+    //ÁREAS
+
+    @PreAuthorize("hasRole('ADMINISTRADOR')")
+    @PutMapping("/{id}/area/{areaId}")
+    public ResponseEntity<Void> asignarArea(
+            @PathVariable Long id,
+            @PathVariable Long areaId) {
+        usuarioService.asignarArea(id, areaId);
+        return ResponseEntity.noContent().build();
     }
 }

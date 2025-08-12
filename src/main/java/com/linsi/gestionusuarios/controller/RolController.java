@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -22,7 +23,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/api/roles")
+@RequestMapping("/api/v1/roles")
 @RequiredArgsConstructor
 @Tag(name = "Gestión de Roles", description = "API para la creación y gestión de roles de usuario")
 public class RolController {
@@ -40,6 +41,20 @@ public class RolController {
     @GetMapping
     public ResponseEntity<List<RolResponseDTO>> listarRoles() {
         return ResponseEntity.ok(rolService.listarRoles());
+    }
+
+    @PreAuthorize("hasRole('ADMINISTRADOR')")
+    @GetMapping("/{id}")
+    public ResponseEntity<RolResponseDTO> obtenerRol(@PathVariable Long id) {
+        RolResponseDTO rol = rolService.obtenerRol(id);
+        return ResponseEntity.ok(rol);
+    }
+
+    @PreAuthorize("hasRole('ADMINISTRADOR')")
+    @PutMapping("/{id}")
+    public ResponseEntity<RolResponseDTO> actualizarRol(@PathVariable Long id, @Valid @RequestBody RolRequestDTO rolDto) {
+        RolResponseDTO rolActualizado = rolService.actualizarRol(id, rolDto);
+        return ResponseEntity.ok(rolActualizado);
     }
 
     @PreAuthorize("hasRole('ADMINISTRADOR')")

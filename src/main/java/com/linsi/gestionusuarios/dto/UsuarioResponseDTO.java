@@ -17,4 +17,5 @@ public class UsuarioResponseDTO {
     private String legajo;
     private String email;
     private String rol;
+    private String area;
 }

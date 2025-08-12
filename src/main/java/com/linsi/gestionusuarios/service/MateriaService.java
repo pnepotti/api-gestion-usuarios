@@ -104,6 +104,8 @@ public class MateriaService {
         return integrantes.map(usuarioMapper::toDto);
     }
 
+    // --- Métodos privados de ayuda ---
+
     private Materia findMateriaById(Long materiaId) {
         return materiaRepository.findById(materiaId)
                 .orElseThrow(() -> new ResourceNotFoundException("Materia no encontrada con ID: " + materiaId));

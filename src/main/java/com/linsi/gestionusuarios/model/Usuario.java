@@ -72,6 +72,10 @@ public class Usuario implements UserDetails {
     @JoinColumn(name = "rol_id")
     private Rol rol; 
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "area_id")
+    private Area area;
+
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
         name = "usuario_materia",

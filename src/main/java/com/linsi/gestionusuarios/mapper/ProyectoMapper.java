@@ -15,6 +15,7 @@ import lombok.RequiredArgsConstructor;
 public class ProyectoMapper {
 
     private final UsuarioMapper usuarioMapper;
+    private final AreaMapper areaMapper;
 
     public ProyectoResponseDTO toDto(Proyecto proyecto) {
         if (proyecto == null) {
@@ -32,6 +33,9 @@ public class ProyectoMapper {
         }
         if (proyecto.getIntegrantes() != null) {
             dto.setIntegrantes(proyecto.getIntegrantes().stream().map(usuarioMapper::toDto).collect(Collectors.toList()));
+        }
+        if (proyecto.getArea() != null) {
+            dto.setArea(areaMapper.toDto(proyecto.getArea()));
         }
         return dto;
     }

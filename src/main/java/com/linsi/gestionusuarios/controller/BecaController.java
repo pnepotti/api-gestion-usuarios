@@ -21,20 +21,20 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/api/becas")
+@RequestMapping("/api/v1/becas")
 @RequiredArgsConstructor
 @Tag(name = "Gestión de Becas", description = "API para la creación y gestión de las becas")
 public class BecaController {
 
     private final BecaService becaService;
 
-    @PreAuthorize("hasRole('ADMINISTRADOR') or hasRole('DOCENTE')")
+    @PreAuthorize("hasRole('ADMINISTRADOR')")
     @GetMapping
     public ResponseEntity<Page<BecaResponseDTO>> listarBecas(Pageable pageable) {
         return ResponseEntity.ok(becaService.listarBecas(pageable));
     }
 
-    @PreAuthorize("hasRole('ADMINISTRADOR') or hasRole('DOCENTE')")
+    @PreAuthorize("hasRole('ADMINISTRADOR') or @becaSecurity.esPropietario(#id, authentication)")
     @GetMapping("/{id}")
     public ResponseEntity<BecaResponseDTO> obtenerBeca(@PathVariable Long id) {
         return ResponseEntity.ok(becaService.obtenerBeca(id));

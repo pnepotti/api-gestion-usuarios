@@ -49,6 +49,10 @@ public class Proyecto {
     private String estado;
 
     @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "area_id")
+    private Area area;
+
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "director_id")
     private Usuario director;
 
@@ -75,5 +79,12 @@ public class Proyecto {
     public int hashCode() {
         
         return getClass().hashCode();
+    }
+
+    public void borrarArea() {
+        if (this.area != null) {
+            this.area.getProyectos().remove(this);
+            this.area = null;
+        }
     }
 }
